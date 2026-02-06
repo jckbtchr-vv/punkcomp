@@ -1,5 +1,6 @@
 import Database from "better-sqlite3";
 import path from "path";
+import fs from "fs";
 
 const DB_PATH = path.join(process.env.DATA_DIR || process.cwd(), "punkcomp.db");
 
@@ -23,7 +24,17 @@ function initDb(db: Database.Database) {
       wins INTEGER NOT NULL DEFAULT 0,
       losses INTEGER NOT NULL DEFAULT 0,
       last_sale_eth REAL,
-      last_sale_date TEXT
+      last_sale_date TEXT,
+      type TEXT,
+      gender TEXT,
+      skin_tone TEXT,
+      accessory_count INTEGER
+    );
+
+    CREATE TABLE IF NOT EXISTS punk_traits (
+      punk_id INTEGER NOT NULL,
+      trait TEXT NOT NULL,
+      PRIMARY KEY (punk_id, trait)
     );
 
     CREATE TABLE IF NOT EXISTS votes (
@@ -39,7 +50,7 @@ function initDb(db: Database.Database) {
     );
   `);
 
-  // Add price columns if upgrading from older schema
+  // Add columns if upgrading from older schema
   const cols = db.prepare("PRAGMA table_info(punks)").all() as { name: string }[];
   const colNames = cols.map((c) => c.name);
   if (!colNames.includes("last_sale_eth")) {
@@ -47,6 +58,18 @@ function initDb(db: Database.Database) {
   }
   if (!colNames.includes("last_sale_date")) {
     db.exec("ALTER TABLE punks ADD COLUMN last_sale_date TEXT");
+  }
+  if (!colNames.includes("type")) {
+    db.exec("ALTER TABLE punks ADD COLUMN type TEXT");
+  }
+  if (!colNames.includes("gender")) {
+    db.exec("ALTER TABLE punks ADD COLUMN gender TEXT");
+  }
+  if (!colNames.includes("skin_tone")) {
+    db.exec("ALTER TABLE punks ADD COLUMN skin_tone TEXT");
+  }
+  if (!colNames.includes("accessory_count")) {
+    db.exec("ALTER TABLE punks ADD COLUMN accessory_count INTEGER");
   }
 
   // Seed all 10,000 punks if table is empty
@@ -64,4 +87,58 @@ function initDb(db: Database.Database) {
     });
     seed();
   }
+
+  // Seed trait data if not yet loaded
+  const traitCount = db.prepare("SELECT COUNT(*) as c FROM punk_traits").get() as { c: number };
+  if (traitCount.c === 0) {
+    seedTraits(db);
+  }
+}
+
+function seedTraits(db: Database.Database) {
+  // Try to find the CSV relative to cwd (project root)
+  const csvPath = path.join(process.cwd(), "data", "cryptopunks.csv");
+  if (!fs.existsSync(csvPath)) {
+    console.warn(`Trait CSV not found at ${csvPath}, skipping trait seed`);
+    return;
+  }
+
+  const csv = fs.readFileSync(csvPath, "utf-8");
+  const lines = csv.trim().split("\n").slice(1); // skip header
+
+  const updatePunk = db.prepare(
+    "UPDATE punks SET type = ?, gender = ?, skin_tone = ?, accessory_count = ? WHERE id = ?"
+  );
+  const insertTrait = db.prepare(
+    "INSERT OR IGNORE INTO punk_traits (punk_id, trait) VALUES (?, ?)"
+  );
+
+  const seed = db.transaction(() => {
+    for (const line of lines) {
+      // Format: id, type, gender, skin tone, count, accessories
+      const parts = line.split(",").map((s) => s.trim());
+      const id = parseInt(parts[0]);
+      const type = parts[1] || null;
+      const gender = parts[2] || null;
+      const skinTone = parts[3] || null;
+      const accessoryCount = parseInt(parts[4]) || 0;
+      const accessories = parts.slice(5).join(",").trim(); // rejoin in case accessories contain commas
+
+      updatePunk.run(type, gender, skinTone, accessoryCount, id);
+
+      // Insert type as a trait too for aggregation
+      if (type) insertTrait.run(id, type);
+
+      // Insert individual accessories
+      if (accessories) {
+        for (const trait of accessories.split(" / ")) {
+          const t = trait.trim();
+          if (t) insertTrait.run(id, t);
+        }
+      }
+    }
+  });
+
+  seed();
+  console.log(`Seeded traits for ${lines.length} punks`);
 }

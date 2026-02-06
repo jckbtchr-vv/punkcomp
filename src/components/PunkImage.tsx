@@ -2,29 +2,27 @@
 
 // The sprite sheet is 2400x2400 containing 100x100 grid of 24x24 pixel punks.
 // Punk #N: row = floor(N/100), col = N%100
+// Using percentage-based background-position so the sprite scales with any container size.
 
 const PUNK_BG = "#638596";
 
 export default function PunkImage({
   punkId,
-  size = 192,
+  className,
 }: {
   punkId: number;
-  size?: number;
+  className?: string;
 }) {
   const col = punkId % 100;
   const row = Math.floor(punkId / 100);
-  const scale = size / 24;
 
   return (
     <div
-      className="punk-sprite"
+      className={`punk-sprite aspect-square ${className || ""}`}
       style={{
-        width: size,
-        height: size,
         backgroundColor: PUNK_BG,
-        backgroundSize: `${2400 * scale}px ${2400 * scale}px`,
-        backgroundPosition: `-${col * size}px -${row * size}px`,
+        backgroundSize: "10000% 10000%",
+        backgroundPosition: `${(col / 99) * 100}% ${(row / 99) * 100}%`,
       }}
       title={`Punk #${punkId}`}
     />

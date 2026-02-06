@@ -21,7 +21,9 @@ function initDb(db: Database.Database) {
       id INTEGER PRIMARY KEY,
       elo REAL NOT NULL DEFAULT 1500,
       wins INTEGER NOT NULL DEFAULT 0,
-      losses INTEGER NOT NULL DEFAULT 0
+      losses INTEGER NOT NULL DEFAULT 0,
+      last_sale_eth REAL,
+      last_sale_date TEXT
     );
 
     CREATE TABLE IF NOT EXISTS votes (
@@ -30,7 +32,22 @@ function initDb(db: Database.Database) {
       loser_id INTEGER NOT NULL,
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
+
+    CREATE TABLE IF NOT EXISTS sync_meta (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL
+    );
   `);
+
+  // Add price columns if upgrading from older schema
+  const cols = db.prepare("PRAGMA table_info(punks)").all() as { name: string }[];
+  const colNames = cols.map((c) => c.name);
+  if (!colNames.includes("last_sale_eth")) {
+    db.exec("ALTER TABLE punks ADD COLUMN last_sale_eth REAL");
+  }
+  if (!colNames.includes("last_sale_date")) {
+    db.exec("ALTER TABLE punks ADD COLUMN last_sale_date TEXT");
+  }
 
   // Seed all 10,000 punks if table is empty
   const count = db.prepare("SELECT COUNT(*) as c FROM punks").get() as {

@@ -1,8 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { calculateElo } from "@/lib/elo";
+import { checkRateLimit } from "@/lib/ratelimit";
 
 export async function POST(req: NextRequest) {
+  const ip =
+    req.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
+    req.headers.get("x-real-ip") ||
+    "unknown";
+
+  const { allowed, remaining } = checkRateLimit(ip);
+  if (!allowed) {
+    return NextResponse.json(
+      { error: "Too many votes. Try again in a minute." },
+      {
+        status: 429,
+        headers: { "Retry-After": "60", "X-RateLimit-Remaining": "0" },
+      }
+    );
+  }
+
   const { winnerId, loserId } = await req.json();
 
   if (
@@ -40,5 +57,8 @@ export async function POST(req: NextRequest) {
 
   update();
 
-  return NextResponse.json({ success: true });
+  return NextResponse.json(
+    { success: true },
+    { headers: { "X-RateLimit-Remaining": String(remaining) } }
+  );
 }

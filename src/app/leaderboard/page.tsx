@@ -9,6 +9,24 @@ interface Punk {
   elo: number;
   wins: number;
   losses: number;
+  last_sale_eth: number | null;
+  dislocation: number | null;
+}
+
+function DislocationBadge({ value }: { value: number }) {
+  // positive = undervalued (looks better than price), negative = overvalued
+  const color =
+    value > 0
+      ? "text-green-400"
+      : value < 0
+        ? "text-red-400"
+        : "text-neutral-500";
+  const label = value > 0 ? `+${value}` : `${value}`;
+  return (
+    <span className={`text-xs font-bold ${color}`} title="Dislocation: aesthetic percentile minus price percentile">
+      {label}
+    </span>
+  );
 }
 
 export default function LeaderboardPage() {
@@ -18,6 +36,7 @@ export default function LeaderboardPage() {
   const [totalVotes, setTotalVotes] = useState(0);
   const [loading, setLoading] = useState(true);
   const [hasLoaded, setHasLoaded] = useState(false);
+  const hasPrices = punks.some((p) => p.last_sale_eth !== null);
 
   const fetchLeaderboard = useCallback(async (p: number) => {
     setLoading(true);
@@ -57,7 +76,7 @@ export default function LeaderboardPage() {
         </Link>
       </div>
 
-      {/* Content area - fixed min width to prevent reflow */}
+      {/* Content area */}
       <div className={`w-full max-w-2xl transition-opacity duration-150 ${loading ? "opacity-50" : "opacity-100"}`}>
         {hasLoaded && punks.length === 0 ? (
           <div className="text-neutral-500 text-lg text-center mt-12">
@@ -65,10 +84,13 @@ export default function LeaderboardPage() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-[auto_1fr_auto_auto] gap-x-4 gap-y-2 items-center text-xs text-neutral-500 mb-2 px-3">
-              <span>#</span>
+            {/* Column headers */}
+            <div className={`grid gap-x-3 items-center text-xs text-neutral-500 mb-2 px-3 ${hasPrices ? "grid-cols-[2rem_1fr_3.5rem_3.5rem_3rem_3rem]" : "grid-cols-[2rem_1fr_3.5rem_3rem]"}`}>
+              <span className="text-right">#</span>
               <span>punk</span>
               <span className="text-right">elo</span>
+              {hasPrices && <span className="text-right">ETH</span>}
+              {hasPrices && <span className="text-right">dloc</span>}
               <span className="text-right">w/l</span>
             </div>
 
@@ -78,13 +100,13 @@ export default function LeaderboardPage() {
                 return (
                   <div
                     key={punk.id}
-                    className="grid grid-cols-[auto_1fr_auto_auto] gap-x-4 items-center px-3 py-2 rounded-lg bg-neutral-900/50 hover:bg-neutral-800/50 transition-colors"
+                    className={`grid gap-x-3 items-center px-3 py-2 rounded-lg bg-neutral-900/50 hover:bg-neutral-800/50 transition-colors ${hasPrices ? "grid-cols-[2rem_1fr_3.5rem_3.5rem_3rem_3rem]" : "grid-cols-[2rem_1fr_3.5rem_3rem]"}`}
                   >
-                    <span className="text-neutral-600 text-sm w-8 text-right">
+                    <span className="text-neutral-600 text-sm text-right">
                       {rank}
                     </span>
                     <div className="flex items-center gap-3">
-                      <PunkImage punkId={punk.id} size={32} />
+                      <PunkImage punkId={punk.id} className="w-8 shrink-0" />
                       <span className="text-sm font-bold text-neutral-300">
                         #{punk.id.toString().padStart(4, "0")}
                       </span>
@@ -92,7 +114,25 @@ export default function LeaderboardPage() {
                     <span className="text-sm font-bold text-green-400 text-right">
                       {Math.round(punk.elo)}
                     </span>
-                    <span className="text-xs text-neutral-500 text-right w-16">
+                    {hasPrices && (
+                      <span className="text-xs text-neutral-400 text-right">
+                        {punk.last_sale_eth !== null
+                          ? punk.last_sale_eth < 10
+                            ? punk.last_sale_eth.toFixed(1)
+                            : Math.round(punk.last_sale_eth)
+                          : "—"}
+                      </span>
+                    )}
+                    {hasPrices && (
+                      <span className="text-right">
+                        {punk.dislocation !== null ? (
+                          <DislocationBadge value={punk.dislocation} />
+                        ) : (
+                          <span className="text-xs text-neutral-700">—</span>
+                        )}
+                      </span>
+                    )}
+                    <span className="text-xs text-neutral-500 text-right">
                       {punk.wins}/{punk.losses}
                     </span>
                   </div>
@@ -124,6 +164,14 @@ export default function LeaderboardPage() {
                 </>
               )}
             </div>
+
+            {/* Dislocation legend */}
+            {hasPrices && (
+              <div className="mt-6 text-center text-xs text-neutral-600">
+                <span className="text-green-400">+dloc</span> = aesthetically undervalued &middot;{" "}
+                <span className="text-red-400">-dloc</span> = aesthetically overvalued
+              </div>
+            )}
           </>
         )}
       </div>

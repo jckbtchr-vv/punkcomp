@@ -50,32 +50,28 @@ export default function VotePage() {
         </p>
       </div>
 
-      {/* Matchup area - always rendered with fixed dimensions */}
+      {/* Matchup area - always side by side with fixed dimensions */}
       <div
-        className="flex flex-col sm:flex-row items-center gap-6 sm:gap-12"
+        className="flex flex-row items-center gap-4 sm:gap-12"
         style={{ minHeight: 280 }}
       >
         <button
           onClick={() => vote(punk1, punk2)}
           disabled={busy}
-          className={`group flex flex-col items-center gap-3 p-4 rounded-xl border border-neutral-800 hover:border-green-500 hover:bg-green-500/5 transition-all duration-150 cursor-pointer disabled:cursor-default ${busy ? "opacity-50 pointer-events-none" : ""}`}
+          className={`group flex flex-col items-center gap-3 p-3 sm:p-4 rounded-xl border border-neutral-800 hover:border-green-500 hover:bg-green-500/5 transition-all duration-150 cursor-pointer disabled:cursor-default ${busy ? "opacity-50 pointer-events-none" : ""}`}
         >
-          <PunkImage punkId={punk1} size={192} />
+          <PunkImage punkId={punk1} className="w-[140px] sm:w-[192px]" />
           <span className="text-neutral-400 group-hover:text-green-400 text-sm font-bold transition-colors">
             #{punk1.toString().padStart(4, "0")}
           </span>
         </button>
 
-        <div className="text-neutral-600 text-2xl font-bold select-none">
-          vs
-        </div>
-
         <button
           onClick={() => vote(punk2, punk1)}
           disabled={busy}
-          className={`group flex flex-col items-center gap-3 p-4 rounded-xl border border-neutral-800 hover:border-green-500 hover:bg-green-500/5 transition-all duration-150 cursor-pointer disabled:cursor-default ${busy ? "opacity-50 pointer-events-none" : ""}`}
+          className={`group flex flex-col items-center gap-3 p-3 sm:p-4 rounded-xl border border-neutral-800 hover:border-green-500 hover:bg-green-500/5 transition-all duration-150 cursor-pointer disabled:cursor-default ${busy ? "opacity-50 pointer-events-none" : ""}`}
         >
-          <PunkImage punkId={punk2} size={192} />
+          <PunkImage punkId={punk2} className="w-[140px] sm:w-[192px]" />
           <span className="text-neutral-400 group-hover:text-green-400 text-sm font-bold transition-colors">
             #{punk2.toString().padStart(4, "0")}
           </span>

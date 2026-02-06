@@ -36,6 +36,16 @@ export default function VotePage() {
     fetchMatchup();
   };
 
+  // Keyboard voting: left/right arrow keys
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") vote(punk1, punk2);
+      else if (e.key === "ArrowRight") vote(punk2, punk1);
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  });
+
   const busy = !ready || voting;
 
   return (

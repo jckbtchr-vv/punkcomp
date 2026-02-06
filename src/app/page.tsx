@@ -10,6 +10,7 @@ export default function VotePage() {
   const [ready, setReady] = useState(false);
   const [voting, setVoting] = useState(false);
   const [voteCount, setVoteCount] = useState(0);
+  const [selected, setSelected] = useState<"left" | "right" | null>(null);
 
   const fetchMatchup = useCallback(async () => {
     const res = await fetch("/api/matchup");
@@ -17,14 +18,16 @@ export default function VotePage() {
     setPunk1(data.punk1);
     setPunk2(data.punk2);
     setReady(true);
+    setSelected(null);
   }, []);
 
   useEffect(() => {
     fetchMatchup();
   }, [fetchMatchup]);
 
-  const vote = async (winnerId: number, loserId: number) => {
+  const vote = async (winnerId: number, loserId: number, side: "left" | "right") => {
     if (voting || !ready) return;
+    setSelected(side);
     setVoting(true);
     await fetch("/api/vote", {
       method: "POST",
@@ -39,14 +42,32 @@ export default function VotePage() {
   // Keyboard voting: left/right arrow keys
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "ArrowLeft") vote(punk1, punk2);
-      else if (e.key === "ArrowRight") vote(punk2, punk1);
+      if (e.key === "ArrowLeft") vote(punk1, punk2, "left");
+      else if (e.key === "ArrowRight") vote(punk2, punk1, "right");
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
   });
 
   const busy = !ready || voting;
+
+  const cardClass = (side: "left" | "right") => {
+    const isSelected = selected === side;
+    return `group flex flex-col items-center gap-3 p-3 sm:p-4 rounded-xl border transition-all duration-150 cursor-pointer disabled:cursor-default ${
+      isSelected
+        ? "border-green-500 bg-green-500/10"
+        : "border-neutral-800 hover:border-green-500 hover:bg-green-500/5"
+    } ${busy ? "opacity-50 pointer-events-none" : ""}`;
+  };
+
+  const labelClass = (side: "left" | "right") => {
+    const isSelected = selected === side;
+    return `text-sm font-bold transition-colors ${
+      isSelected
+        ? "text-green-400"
+        : "text-neutral-400 group-hover:text-green-400"
+    }`;
+  };
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-4 py-8">
@@ -66,23 +87,23 @@ export default function VotePage() {
         style={{ minHeight: 280 }}
       >
         <button
-          onClick={() => vote(punk1, punk2)}
+          onClick={() => vote(punk1, punk2, "left")}
           disabled={busy}
-          className={`group flex flex-col items-center gap-3 p-3 sm:p-4 rounded-xl border border-neutral-800 hover:border-green-500 hover:bg-green-500/5 transition-all duration-150 cursor-pointer disabled:cursor-default ${busy ? "opacity-50 pointer-events-none" : ""}`}
+          className={cardClass("left")}
         >
           <PunkImage punkId={punk1} className="w-[140px] sm:w-[192px]" />
-          <span className="text-neutral-400 group-hover:text-green-400 text-sm font-bold transition-colors">
+          <span className={labelClass("left")}>
             #{punk1.toString().padStart(4, "0")}
           </span>
         </button>
 
         <button
-          onClick={() => vote(punk2, punk1)}
+          onClick={() => vote(punk2, punk1, "right")}
           disabled={busy}
-          className={`group flex flex-col items-center gap-3 p-3 sm:p-4 rounded-xl border border-neutral-800 hover:border-green-500 hover:bg-green-500/5 transition-all duration-150 cursor-pointer disabled:cursor-default ${busy ? "opacity-50 pointer-events-none" : ""}`}
+          className={cardClass("right")}
         >
           <PunkImage punkId={punk2} className="w-[140px] sm:w-[192px]" />
-          <span className="text-neutral-400 group-hover:text-green-400 text-sm font-bold transition-colors">
+          <span className={labelClass("right")}>
             #{punk2.toString().padStart(4, "0")}
           </span>
         </button>

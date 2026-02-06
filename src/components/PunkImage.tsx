@@ -3,6 +3,8 @@
 // The sprite sheet is 2400x2400 containing 100x100 grid of 24x24 pixel punks.
 // Punk #N: row = floor(N/100), col = N%100
 
+const PUNK_BG = "#638596";
+
 export default function PunkImage({
   punkId,
   size = 192,
@@ -20,6 +22,7 @@ export default function PunkImage({
       style={{
         width: size,
         height: size,
+        backgroundColor: PUNK_BG,
         backgroundSize: `${2400 * scale}px ${2400 * scale}px`,
         backgroundPosition: `-${col * size}px -${row * size}px`,
       }}

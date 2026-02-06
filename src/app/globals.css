@@ -8,7 +8,7 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: "SF Mono", "Fira Code", "Fira Mono", "Roboto Mono", "Courier New", monospace;
+  font-family: "DM Sans", sans-serif;
 }
 
 .punk-sprite {

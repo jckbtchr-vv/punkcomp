@@ -145,7 +145,7 @@ export default function LeaderboardPage() {
           PUNKCOMP
         </h1>
         <p className="font-mono-caps text-xs text-neutral-500">
-          {totalVotes.toLocaleString()} VOTES{totalVoters > 0 ? ` · ${totalVoters.toLocaleString()} VOTERS` : ""}
+          {totalVotes.toLocaleString()} VOTES{totalVoters >= 100 ? ` · ${totalVoters.toLocaleString()} VOTERS` : ""}
         </p>
       </div>
 

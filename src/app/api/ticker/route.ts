@@ -29,7 +29,7 @@ export async function GET() {
       .prepare("SELECT COUNT(DISTINCT voter_ip) as c FROM votes WHERE voter_ip IS NOT NULL")
       .get() as { c: number }
   ).c;
-  if (totalVoters > 0) {
+  if (totalVoters >= 100) {
     items.push({ text: `${totalVoters.toLocaleString()} VOTERS` });
   }
 

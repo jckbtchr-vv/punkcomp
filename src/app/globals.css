@@ -18,7 +18,7 @@ body {
 }
 
 .ticker-track {
-  animation: ticker-track 30s linear infinite;
+  animation: ticker-track 60s linear infinite;
   will-change: transform;
 }
 

@@ -133,8 +133,8 @@ function buildTraitCountMatchups(
 
   const stmt = db.prepare(
     `SELECT COUNT(*) as c FROM votes v
-     WHERE (SELECT COUNT(*) FROM punk_traits WHERE punk_id = v.winner_id) = ?
-     AND (SELECT COUNT(*) FROM punk_traits WHERE punk_id = v.loser_id) = ?`
+     WHERE (SELECT COUNT(*) FROM punk_traits WHERE punk_id = v.winner_id AND trait NOT IN ('Human', 'Zombie', 'Ape', 'Alien')) = ?
+     AND (SELECT COUNT(*) FROM punk_traits WHERE punk_id = v.loser_id AND trait NOT IN ('Human', 'Zombie', 'Ape', 'Alien')) = ?`
   );
 
   const matchups: TraitMatchup[] = [];
@@ -164,8 +164,8 @@ function buildTraitCountFocusedMatchups(
   const focusNum = parseInt(focusTrait);
   const stmt = db.prepare(
     `SELECT COUNT(*) as c FROM votes v
-     WHERE (SELECT COUNT(*) FROM punk_traits WHERE punk_id = v.winner_id) = ?
-     AND (SELECT COUNT(*) FROM punk_traits WHERE punk_id = v.loser_id) = ?`
+     WHERE (SELECT COUNT(*) FROM punk_traits WHERE punk_id = v.winner_id AND trait NOT IN ('Human', 'Zombie', 'Ape', 'Alien')) = ?
+     AND (SELECT COUNT(*) FROM punk_traits WHERE punk_id = v.loser_id AND trait NOT IN ('Human', 'Zombie', 'Ape', 'Alien')) = ?`
   );
 
   const matchups: TraitMatchup[] = [];
@@ -202,12 +202,14 @@ export async function GET(request: Request) {
     .all() as { trait: string; cnt: number }[];
 
   // Build trait-count virtual traits ("1 Trait", "2 Traits", etc.)
+  // Exclude type traits (Human/Zombie/Ape/Alien) from count — only count accessories
   const traitCounts = db
     .prepare(
       `SELECT COUNT(pt.trait) as cnt, pt.punk_id
        FROM punk_traits pt
        JOIN punks p ON pt.punk_id = p.id
        WHERE p.wins + p.losses > 0
+         AND pt.trait NOT IN ('Human', 'Zombie', 'Ape', 'Alien')
        GROUP BY pt.punk_id`
     )
     .all() as { cnt: number; punk_id: number }[];

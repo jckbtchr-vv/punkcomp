@@ -21,7 +21,15 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { winnerId, loserId, token } = await req.json();
+  let winnerId: number, loserId: number, token: string;
+  try {
+    const body = await req.json();
+    winnerId = body.winnerId;
+    loserId = body.loserId;
+    token = body.token;
+  } catch {
+    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+  }
 
   if (
     typeof winnerId !== "number" ||

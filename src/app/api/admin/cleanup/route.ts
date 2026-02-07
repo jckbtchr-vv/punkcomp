@@ -27,9 +27,9 @@ async function runCleanup(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const secret = searchParams.get("secret");
 
-  // Simple auth - set ADMIN_SECRET env var or use default
-  const expected = process.env.ADMIN_SECRET || "pvp-cleanup-2024";
-  if (secret !== expected) {
+  // Require ADMIN_SECRET env var - no default fallback
+  const expected = process.env.ADMIN_SECRET;
+  if (!expected || secret !== expected) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

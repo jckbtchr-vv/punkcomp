@@ -76,7 +76,7 @@ export default function VotePage() {
       {/* Top right leaderboard link */}
       <Link
         href="/leaderboard"
-        className="absolute top-4 right-4 font-mono-caps text-[10px] text-neutral-600 hover:text-white border border-neutral-800 hover:border-neutral-600 px-3 py-1.5 rounded-lg transition-colors"
+        className="absolute top-4 right-4 font-mono-caps text-[10px] text-green-500 hover:text-green-400 border border-green-500/50 hover:border-green-400 px-3 py-1.5 rounded-lg transition-colors"
       >
         LEADERBOARD
       </Link>

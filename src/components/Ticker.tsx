@@ -11,20 +11,14 @@ function TickerPunk({ id }: { id: number }) {
   const col = id % 100;
   const row = Math.floor(id / 100);
   return (
-    <span className="inline-block w-4 h-4 rounded-full overflow-hidden shrink-0">
-      <span
-        className="block punk-sprite"
-        style={{
-          width: "20px",
-          height: "20px",
-          marginTop: "-1px",
-          marginLeft: "-2px",
-          backgroundColor: "#638596",
-          backgroundSize: "10000% 10000%",
-          backgroundPosition: `${(col / 99) * 100}% ${(row / 99) * 100}%`,
-        }}
-      />
-    </span>
+    <span
+      className="inline-block w-4 h-4 rounded-full shrink-0 punk-sprite"
+      style={{
+        backgroundColor: "#638596",
+        backgroundSize: "10000% 10000%",
+        backgroundPosition: `${(col / 99) * 100}% ${(row / 99) * 100}%`,
+      }}
+    />
   );
 }
 

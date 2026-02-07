@@ -49,9 +49,10 @@ export async function POST(req: NextRequest) {
     db.prepare(
       "UPDATE punks SET elo = ?, losses = losses + 1 WHERE id = ?"
     ).run(newLoserElo, loserId);
-    db.prepare("INSERT INTO votes (winner_id, loser_id) VALUES (?, ?)").run(
+    db.prepare("INSERT INTO votes (winner_id, loser_id, voter_ip) VALUES (?, ?, ?)").run(
       winnerId,
-      loserId
+      loserId,
+      ip
     );
   });
 

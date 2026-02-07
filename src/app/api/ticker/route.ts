@@ -18,6 +18,16 @@ export async function GET() {
   // Total votes
   items.push(`${totalVotes.toLocaleString()} VOTES CAST`);
 
+  // Total unique voters
+  const totalVoters = (
+    db
+      .prepare("SELECT COUNT(DISTINCT voter_ip) as c FROM votes WHERE voter_ip IS NOT NULL")
+      .get() as { c: number }
+  ).c;
+  if (totalVoters > 0) {
+    items.push(`${totalVoters.toLocaleString()} VOTERS`);
+  }
+
   // Number of punks that have been voted on
   const votedPunks = (
     db

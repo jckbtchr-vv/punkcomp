@@ -24,15 +24,17 @@ export async function GET(req: NextRequest) {
       .get(punkId) as { id: number; elo: number; wins: number; losses: number; last_sale_eth: number | null } | undefined;
 
     const totalVotes = db.prepare("SELECT COUNT(*) as c FROM votes").get() as { c: number };
+    const totalVoters = db.prepare("SELECT COUNT(DISTINCT voter_ip) as c FROM votes WHERE voter_ip IS NOT NULL").get() as { c: number };
 
     if (!punk) {
-      return NextResponse.json({ punks: [], total: 0, totalVotes: totalVotes.c, page: 1, totalPages: 0, eloMin: 1500, eloMax: 1500 });
+      return NextResponse.json({ punks: [], total: 0, totalVotes: totalVotes.c, totalVoters: totalVoters.c, page: 1, totalPages: 0, eloMin: 1500, eloMax: 1500 });
     }
 
     return NextResponse.json({
       punks: [{ ...punk, dislocation: null }],
       total: 1,
       totalVotes: totalVotes.c,
+      totalVoters: totalVoters.c,
       page: 1,
       totalPages: 1,
       eloMin: punk.elo,
@@ -60,6 +62,10 @@ export async function GET(req: NextRequest) {
 
   const totalVotes = db
     .prepare("SELECT COUNT(*) as c FROM votes")
+    .get() as { c: number };
+
+  const totalVoters = db
+    .prepare("SELECT COUNT(DISTINCT voter_ip) as c FROM votes WHERE voter_ip IS NOT NULL")
     .get() as { c: number };
 
   // Global elo range for bar normalization
@@ -105,6 +111,7 @@ export async function GET(req: NextRequest) {
     punks: enriched,
     total: total.c,
     totalVotes: totalVotes.c,
+    totalVoters: totalVoters.c,
     page,
     totalPages: Math.ceil(total.c / limit),
     eloMin: eloRange?.min ?? 1500,

@@ -72,6 +72,13 @@ function initDb(db: Database.Database) {
     db.exec("ALTER TABLE punks ADD COLUMN accessory_count INTEGER");
   }
 
+  // Add voter_ip to votes table if missing
+  const voteCols = db.prepare("PRAGMA table_info(votes)").all() as { name: string }[];
+  const voteColNames = voteCols.map((c) => c.name);
+  if (!voteColNames.includes("voter_ip")) {
+    db.exec("ALTER TABLE votes ADD COLUMN voter_ip TEXT");
+  }
+
   // Seed all 10,000 punks if table is empty
   const count = db.prepare("SELECT COUNT(*) as c FROM punks").get() as {
     c: number;

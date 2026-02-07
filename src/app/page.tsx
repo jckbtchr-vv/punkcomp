@@ -70,7 +70,15 @@ export default function VotePage() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center px-4 py-8">
+    <main className="relative min-h-screen flex flex-col items-center justify-center px-4 py-8">
+      {/* Top right leaderboard link */}
+      <Link
+        href="/leaderboard"
+        className="absolute top-4 right-4 font-mono-caps text-[10px] text-neutral-600 hover:text-white border border-neutral-800 hover:border-neutral-600 px-3 py-1.5 rounded-lg transition-colors"
+      >
+        LEADERBOARD
+      </Link>
+
       {/* Header - fixed height */}
       <div className="mb-8 text-center h-16 flex flex-col justify-center">
         <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-1">
@@ -125,12 +133,14 @@ export default function VotePage() {
         <p className={`font-mono-caps text-[10px] text-neutral-600 h-4 ${voteCount > 0 ? "visible" : "invisible"}`}>
           {voteCount} vote{voteCount !== 1 ? "s" : ""} this session
         </p>
-        <Link
-          href="/leaderboard"
-          className="font-mono-caps text-xs text-neutral-500 hover:text-white border border-neutral-800 hover:border-neutral-600 px-4 py-2 rounded-lg transition-colors"
+        <a
+          href="https://x.com/jackbutcher/status/2019825566522978796"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-mono-caps text-[10px] text-neutral-700 hover:text-neutral-400 transition-colors"
         >
-          view leaderboard
-        </Link>
+          HAVE A FEATURE SUGGESTION?
+        </a>
       </div>
     </main>
   );

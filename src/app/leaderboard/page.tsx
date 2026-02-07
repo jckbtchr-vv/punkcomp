@@ -67,6 +67,7 @@ export default function LeaderboardPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalVotes, setTotalVotes] = useState(0);
+  const [totalVoters, setTotalVoters] = useState(0);
   const [eloMin, setEloMin] = useState(1500);
   const [eloMax, setEloMax] = useState(1500);
   const [loading, setLoading] = useState(true);
@@ -84,6 +85,7 @@ export default function LeaderboardPage() {
     setPunks(data.punks);
     setTotalPages(data.totalPages);
     setTotalVotes(data.totalVotes);
+    setTotalVoters(data.totalVoters ?? 0);
     setEloMin(data.eloMin);
     setEloMax(data.eloMax);
     setPage(p);
@@ -143,7 +145,7 @@ export default function LeaderboardPage() {
           PUNKCOMP
         </h1>
         <p className="font-mono-caps text-xs text-neutral-500">
-          {totalVotes.toLocaleString()} TOTAL VOTES
+          {totalVotes.toLocaleString()} VOTES{totalVoters > 0 ? ` · ${totalVoters.toLocaleString()} VOTERS` : ""}
         </p>
       </div>
 

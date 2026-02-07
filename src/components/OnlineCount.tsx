@@ -20,7 +20,7 @@ export default function OnlineCount() {
   if (count === 0) return null;
 
   return (
-    <div className="fixed top-2 left-3 z-50 flex items-center gap-1.5">
+    <div className="fixed top-4 left-4 z-50 flex items-center gap-1.5">
       <span className="relative flex h-2 w-2">
         <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
         <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />

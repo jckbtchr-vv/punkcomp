@@ -32,7 +32,7 @@ function DislocationBadge({ value }: { value: number }) {
         : "text-neutral-500";
   const label = value > 0 ? `+${value}` : `${value}`;
   return (
-    <span className={`text-xs font-bold ${color}`} title="Dislocation: aesthetic percentile minus price percentile">
+    <span className={`font-mono-caps text-[10px] font-bold ${color}`} title="Dislocation: aesthetic percentile minus price percentile">
       {label}
     </span>
   );
@@ -218,20 +218,20 @@ export default function LeaderboardPage() {
                         className={`relative grid gap-x-3 items-center px-3 py-2 rounded-lg overflow-hidden ${hasPrices ? "grid-cols-[2rem_1fr_3rem_3rem_3rem_3rem_2.5rem]" : "grid-cols-[2rem_1fr_3rem_2.5rem_2.5rem]"}`}
                       >
                         <EloBar elo={punk.elo} min={eloMin} max={eloMax} />
-                        <span className="relative text-neutral-600 text-sm text-right">
+                        <span className="relative font-mono-caps text-[10px] text-neutral-600 text-right">
                           {rank}
                         </span>
                         <div className="relative flex items-center gap-3">
                           <PunkImage punkId={punk.id} className="w-8 shrink-0" />
-                          <span className="font-mono-caps text-xs font-bold text-neutral-300">
+                          <span className="font-mono-caps text-[10px] font-bold text-neutral-300">
                             #{punk.id.toString().padStart(4, "0")}
                           </span>
                         </div>
-                        <span className="relative text-sm font-bold text-green-400 text-right">
+                        <span className="relative font-mono-caps text-[10px] font-bold text-green-400 text-right">
                           {Math.round(punk.elo)}
                         </span>
                         {hasPrices && (
-                          <span className="relative text-xs text-neutral-400 text-right">
+                          <span className="relative font-mono-caps text-[10px] text-neutral-400 text-right">
                             {punk.last_sale_eth !== null
                               ? punk.last_sale_eth < 10
                                 ? punk.last_sale_eth.toFixed(1)
@@ -244,7 +244,7 @@ export default function LeaderboardPage() {
                             {punk.dislocation !== null ? (
                               <DislocationBadge value={punk.dislocation} />
                             ) : (
-                              <span className="text-xs text-neutral-700">—</span>
+                              <span className="font-mono-caps text-[10px] text-neutral-700">—</span>
                             )}
                           </span>
                         )}
@@ -322,13 +322,13 @@ export default function LeaderboardPage() {
                       className="relative grid grid-cols-[2rem_1fr_3.5rem_3rem_3rem_2.5rem] gap-x-3 items-center px-3 py-2 rounded-lg overflow-hidden"
                     >
                       <EloBar elo={trait.avg_elo} min={traitEloMin} max={traitEloMax} />
-                      <span className="relative text-neutral-600 text-sm text-right">
+                      <span className="relative font-mono-caps text-[10px] text-neutral-600 text-right">
                         {i + 1}
                       </span>
-                      <span className="relative text-xs font-bold text-neutral-300 truncate">
+                      <span className="relative font-mono-caps text-[10px] font-bold text-neutral-300 truncate">
                         {trait.trait}
                       </span>
-                      <span className="relative text-sm font-bold text-green-400 text-right">
+                      <span className="relative font-mono-caps text-[10px] font-bold text-green-400 text-right">
                         {Math.round(trait.avg_elo)}
                       </span>
                       <span className="relative font-mono-caps text-[10px] text-neutral-500 text-right">

@@ -3,20 +3,25 @@ import { getDb } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
+interface TickerItem {
+  text: string;
+  punks?: number[];
+}
+
 export async function GET() {
   const db = getDb();
-  const items: string[] = [];
+  const items: TickerItem[] = [];
 
   const totalVotes = (
     db.prepare("SELECT COUNT(*) as c FROM votes").get() as { c: number }
   ).c;
 
   if (totalVotes === 0) {
-    return NextResponse.json({ items: ["NO VOTES YET — BE THE FIRST"] });
+    return NextResponse.json({ items: [{ text: "NO VOTES YET — BE THE FIRST" }] });
   }
 
   // Total votes
-  items.push(`${totalVotes.toLocaleString()} VOTES CAST`);
+  items.push({ text: `${totalVotes.toLocaleString()} VOTES CAST` });
 
   // Total unique voters
   const totalVoters = (
@@ -25,7 +30,7 @@ export async function GET() {
       .get() as { c: number }
   ).c;
   if (totalVoters > 0) {
-    items.push(`${totalVoters.toLocaleString()} VOTERS`);
+    items.push({ text: `${totalVoters.toLocaleString()} VOTERS` });
   }
 
   // Number of punks that have been voted on
@@ -34,7 +39,7 @@ export async function GET() {
       .prepare("SELECT COUNT(*) as c FROM punks WHERE wins + losses > 0")
       .get() as { c: number }
   ).c;
-  items.push(`${votedPunks.toLocaleString()} / 10,000 PUNKS RATED`);
+  items.push({ text: `${votedPunks.toLocaleString()} / 10,000 PUNKS RATED` });
 
   // #1 ranked punk
   const top = db
@@ -43,9 +48,10 @@ export async function GET() {
     )
     .get() as { id: number; elo: number } | undefined;
   if (top) {
-    items.push(
-      `#${top.id.toString().padStart(4, "0")} IS RANKED #1 — ELO ${Math.round(top.elo)}`
-    );
+    items.push({
+      text: `#${top.id.toString().padStart(4, "0")} IS RANKED #1 — ELO ${Math.round(top.elo)}`,
+      punks: [top.id],
+    });
   }
 
   // Last ranked punk
@@ -55,9 +61,10 @@ export async function GET() {
     )
     .get() as { id: number; elo: number } | undefined;
   if (bottom) {
-    items.push(
-      `#${bottom.id.toString().padStart(4, "0")} IS RANKED LAST — ELO ${Math.round(bottom.elo)}`
-    );
+    items.push({
+      text: `#${bottom.id.toString().padStart(4, "0")} IS RANKED LAST — ELO ${Math.round(bottom.elo)}`,
+      punks: [bottom.id],
+    });
   }
 
   // Most voted punk
@@ -67,9 +74,10 @@ export async function GET() {
     )
     .get() as { id: number; total: number } | undefined;
   if (mostVoted) {
-    items.push(
-      `#${mostVoted.id.toString().padStart(4, "0")} MOST VOTED — ${mostVoted.total} MATCHUPS`
-    );
+    items.push({
+      text: `#${mostVoted.id.toString().padStart(4, "0")} MOST VOTED — ${mostVoted.total} MATCHUPS`,
+      punks: [mostVoted.id],
+    });
   }
 
   // Best win rate (min 5 votes)
@@ -80,9 +88,10 @@ export async function GET() {
     )
     .get() as { id: number; wins: number; losses: number; wr: number } | undefined;
   if (bestWR) {
-    items.push(
-      `#${bestWR.id.toString().padStart(4, "0")} — ${Math.round(bestWR.wr * 100)}% WIN RATE`
-    );
+    items.push({
+      text: `#${bestWR.id.toString().padStart(4, "0")} — ${Math.round(bestWR.wr * 100)}% WIN RATE`,
+      punks: [bestWR.id],
+    });
   }
 
   // Recent vote
@@ -92,9 +101,10 @@ export async function GET() {
     )
     .get() as { winner_id: number; loser_id: number } | undefined;
   if (recent) {
-    items.push(
-      `LATEST: #${recent.winner_id.toString().padStart(4, "0")} BEAT #${recent.loser_id.toString().padStart(4, "0")}`
-    );
+    items.push({
+      text: `LATEST: #${recent.winner_id.toString().padStart(4, "0")} BEAT #${recent.loser_id.toString().padStart(4, "0")}`,
+      punks: [recent.winner_id, recent.loser_id],
+    });
   }
 
   // Top trait by avg elo
@@ -108,9 +118,9 @@ export async function GET() {
     )
     .get() as { trait: string; avg_elo: number } | undefined;
   if (topTrait) {
-    items.push(
-      `TOP TRAIT: ${topTrait.trait.toUpperCase()} — AVG ELO ${Math.round(topTrait.avg_elo)}`
-    );
+    items.push({
+      text: `TOP TRAIT: ${topTrait.trait.toUpperCase()} — AVG ELO ${Math.round(topTrait.avg_elo)}`,
+    });
   }
 
   // Biggest upset: recent vote where winner elo was much lower than loser elo
@@ -130,9 +140,10 @@ export async function GET() {
     loser_elo: number;
   } | undefined;
   if (upset && upset.loser_elo - upset.winner_elo > 20) {
-    items.push(
-      `UPSET: #${upset.winner_id.toString().padStart(4, "0")} BEAT #${upset.loser_id.toString().padStart(4, "0")} (+${Math.round(upset.loser_elo - upset.winner_elo)} ELO GAP)`
-    );
+    items.push({
+      text: `UPSET: #${upset.winner_id.toString().padStart(4, "0")} BEAT #${upset.loser_id.toString().padStart(4, "0")} (+${Math.round(upset.loser_elo - upset.winner_elo)} ELO GAP)`,
+      punks: [upset.winner_id, upset.loser_id],
+    });
   }
 
   // Type breakdown: count of each type that has votes
@@ -145,7 +156,7 @@ export async function GET() {
     .all() as { type: string; c: number }[];
   if (types.length > 0) {
     const parts = types.map((t) => `${t.c} ${t.type.toUpperCase()}S`).join(" · ");
-    items.push(`RATED: ${parts}`);
+    items.push({ text: `RATED: ${parts}` });
   }
 
   return NextResponse.json({ items });

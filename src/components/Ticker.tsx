@@ -1,9 +1,23 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import PunkImage from "@/components/PunkImage";
+
+interface TickerItem {
+  text: string;
+  punks?: number[];
+}
+
+function TickerPunk({ id }: { id: number }) {
+  return (
+    <span className="inline-block w-4 h-4 rounded-full overflow-hidden shrink-0 align-middle border border-neutral-700">
+      <PunkImage punkId={id} className="w-4 h-4" />
+    </span>
+  );
+}
 
 export default function Ticker() {
-  const [items, setItems] = useState<string[]>([]);
+  const [items, setItems] = useState<TickerItem[]>([]);
 
   useEffect(() => {
     fetch("/api/ticker")
@@ -29,10 +43,15 @@ export default function Ticker() {
 
   return (
     <div className="w-full overflow-hidden border-b border-neutral-800/50 bg-neutral-950/80">
-      <div className="ticker-scroll flex whitespace-nowrap py-2">
+      <div className="ticker-scroll flex whitespace-nowrap items-center py-1.5">
         {repeated.map((item, i) => (
-          <span key={i} className="font-mono-caps text-[10px] text-neutral-500 mx-6 shrink-0">
-            {item}
+          <span key={i} className="inline-flex items-center gap-1.5 mx-6 shrink-0">
+            {item.punks?.map((id) => (
+              <TickerPunk key={id} id={id} />
+            ))}
+            <span className="font-mono-caps text-[10px] text-neutral-500">
+              {item.text}
+            </span>
           </span>
         ))}
       </div>

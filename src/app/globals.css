@@ -11,6 +11,12 @@ body {
   font-family: "DM Sans", sans-serif;
 }
 
+.font-mono-caps {
+  font-family: "DM Mono", monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
 .punk-sprite {
   image-rendering: pixelated;
   image-rendering: -moz-crisp-edges;

@@ -62,7 +62,7 @@ export default function VotePage() {
 
   const labelClass = (side: "left" | "right") => {
     const isSelected = selected === side;
-    return `text-sm font-bold transition-colors ${
+    return `font-mono-caps text-xs font-bold transition-colors ${
       isSelected
         ? "text-green-400"
         : "text-neutral-400 group-hover:text-green-400"
@@ -76,7 +76,7 @@ export default function VotePage() {
         <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-1">
           PUNKCOMP
         </h1>
-        <p className="text-sm text-neutral-500">
+        <p className="font-mono-caps text-xs text-neutral-500">
           which punk looks better?
         </p>
       </div>
@@ -114,7 +114,7 @@ export default function VotePage() {
         <button
           onClick={fetchMatchup}
           disabled={busy}
-          className="text-neutral-600 hover:text-neutral-400 text-sm transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-default"
+          className="font-mono-caps text-neutral-600 hover:text-neutral-400 text-xs transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-default"
         >
           skip &rarr;
         </button>
@@ -122,12 +122,12 @@ export default function VotePage() {
 
       {/* Footer - fixed height, vote count always occupies space */}
       <div className="mt-12 h-16 flex flex-col items-center justify-center gap-3">
-        <p className={`text-xs text-neutral-600 h-4 ${voteCount > 0 ? "visible" : "invisible"}`}>
+        <p className={`font-mono-caps text-[10px] text-neutral-600 h-4 ${voteCount > 0 ? "visible" : "invisible"}`}>
           {voteCount} vote{voteCount !== 1 ? "s" : ""} this session
         </p>
         <Link
           href="/leaderboard"
-          className="text-sm text-neutral-500 hover:text-white border border-neutral-800 hover:border-neutral-600 px-4 py-2 rounded-lg transition-colors"
+          className="font-mono-caps text-xs text-neutral-500 hover:text-white border border-neutral-800 hover:border-neutral-600 px-4 py-2 rounded-lg transition-colors"
         >
           view leaderboard
         </Link>

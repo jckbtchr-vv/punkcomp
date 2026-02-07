@@ -79,7 +79,7 @@ export default function DocsPage() {
             All endpoints are read-only, require no authentication, and return JSON. CORS is enabled for all origins.
           </p>
           <p>
-            Base URL: <code className="text-neutral-200">https://pvp.xyz/api/v1</code>
+            Base URL: <code className="text-neutral-200">https://pvp.community/api/v1</code>
           </p>
         </div>
 

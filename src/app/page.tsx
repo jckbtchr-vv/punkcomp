@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import PunkImage from "@/components/PunkImage";
+import OnlineCount from "@/components/OnlineCount";
 import Link from "next/link";
 
 export default function VotePage() {
@@ -70,7 +71,8 @@ export default function VotePage() {
   };
 
   return (
-    <main className="relative h-screen overflow-hidden flex flex-col items-center justify-center px-4">
+    <main className="relative flex flex-col items-center justify-center px-4" style={{ height: "calc(100dvh - 28px)", overflow: "hidden" }}>
+      <OnlineCount />
       {/* Top right leaderboard link */}
       <Link
         href="/leaderboard"

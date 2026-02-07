@@ -70,7 +70,7 @@ export default function VotePage() {
   };
 
   return (
-    <main className="relative min-h-screen flex flex-col items-center justify-center px-4 py-8">
+    <main className="relative h-screen overflow-hidden flex flex-col items-center justify-center px-4">
       {/* Top right leaderboard link */}
       <Link
         href="/leaderboard"
@@ -128,20 +128,22 @@ export default function VotePage() {
         </button>
       </div>
 
-      {/* Footer - fixed height, vote count always occupies space */}
-      <div className="mt-12 h-16 flex flex-col items-center justify-center gap-3">
-        <p className={`font-mono-caps text-[10px] text-neutral-600 h-4 ${voteCount > 0 ? "visible" : "invisible"}`}>
+      {/* Vote count */}
+      <div className="mt-12 h-8 flex items-center justify-center">
+        <p className={`font-mono-caps text-[10px] text-neutral-600 ${voteCount > 0 ? "visible" : "invisible"}`}>
           {voteCount} vote{voteCount !== 1 ? "s" : ""} this session
         </p>
-        <a
-          href="https://x.com/jackbutcher/status/2019825566522978796"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="font-mono-caps text-[10px] text-neutral-700 hover:text-neutral-400 transition-colors"
-        >
-          HAVE A FEATURE SUGGESTION?
-        </a>
       </div>
+
+      {/* Bottom right feature suggestion */}
+      <a
+        href="https://x.com/jackbutcher/status/2019825566522978796"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-4 right-4 font-mono-caps text-[10px] text-neutral-700 hover:text-neutral-400 transition-colors"
+      >
+        HAVE A FEATURE SUGGESTION?
+      </a>
     </main>
   );
 }

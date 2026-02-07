@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Ticker from "@/components/Ticker";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -22,6 +23,7 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased">
+        <Ticker />
         {children}
       </body>
     </html>

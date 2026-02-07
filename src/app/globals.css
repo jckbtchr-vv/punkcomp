@@ -17,6 +17,19 @@ body {
   letter-spacing: 0.05em;
 }
 
+.ticker-scroll {
+  animation: ticker-scroll 30s linear infinite;
+}
+
+@keyframes ticker-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
 .punk-sprite {
   image-rendering: pixelated;
   image-rendering: -moz-crisp-edges;

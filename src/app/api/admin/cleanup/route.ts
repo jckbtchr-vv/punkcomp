@@ -14,7 +14,16 @@ function calcElo(winnerElo: number, loserElo: number) {
   };
 }
 
+// Support both GET (browser) and POST (curl)
+export async function GET(req: NextRequest) {
+  return runCleanup(req);
+}
+
 export async function POST(req: NextRequest) {
+  return runCleanup(req);
+}
+
+async function runCleanup(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const secret = searchParams.get("secret");
 

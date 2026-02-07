@@ -163,6 +163,12 @@ export default function LeaderboardPage() {
         <button onClick={() => switchTab("traits")} className={tabClass("traits")}>
           TRAITS
         </button>
+        <Link
+          href="/matchups"
+          className="font-mono-caps text-xs text-neutral-500 hover:text-white px-4 py-2 rounded-lg transition-colors"
+        >
+          MATCHUPS
+        </Link>
       </div>
 
       {/* Search (punks tab only) */}

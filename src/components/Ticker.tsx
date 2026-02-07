@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import PunkImage from "@/components/PunkImage";
 
 interface TickerItem {
   text: string;
@@ -9,9 +8,22 @@ interface TickerItem {
 }
 
 function TickerPunk({ id }: { id: number }) {
+  const col = id % 100;
+  const row = Math.floor(id / 100);
   return (
-    <span className="inline-block w-4 h-4 rounded-full overflow-hidden shrink-0 align-middle border border-neutral-700">
-      <PunkImage punkId={id} className="w-4 h-4" />
+    <span className="inline-block w-4 h-4 rounded-full overflow-hidden shrink-0">
+      <span
+        className="block punk-sprite"
+        style={{
+          width: "20px",
+          height: "20px",
+          marginTop: "-1px",
+          marginLeft: "-2px",
+          backgroundColor: "#638596",
+          backgroundSize: "10000% 10000%",
+          backgroundPosition: `${(col / 99) * 100}% ${(row / 99) * 100}%`,
+        }}
+      />
     </span>
   );
 }

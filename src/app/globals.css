@@ -17,16 +17,17 @@ body {
   letter-spacing: 0.05em;
 }
 
-.ticker-scroll {
-  animation: ticker-scroll 30s linear infinite;
+.ticker-track {
+  animation: ticker-track 30s linear infinite;
+  will-change: transform;
 }
 
-@keyframes ticker-scroll {
+@keyframes ticker-track {
   0% {
     transform: translateX(0);
   }
   100% {
-    transform: translateX(-50%);
+    transform: translateX(-100%);
   }
 }
 

@@ -16,12 +16,9 @@ function MatchupBar({ matchup }: { matchup: Matchup }) {
   const bPct = 100 - matchup.aPct;
   return (
     <div className="flex items-center gap-2 py-1.5">
-      {/* Left trait label */}
       <span className="font-mono-caps text-[10px] text-green-400 w-28 text-right truncate shrink-0">
         {matchup.traitA}
       </span>
-
-      {/* Bar */}
       <div className="flex-1 flex h-5 rounded overflow-hidden bg-neutral-900/50">
         <div
           className="flex items-center justify-end pr-1.5 rounded-l"
@@ -50,8 +47,6 @@ function MatchupBar({ matchup }: { matchup: Matchup }) {
           )}
         </div>
       </div>
-
-      {/* Right trait label */}
       <span className="font-mono-caps text-[10px] text-red-400 w-28 truncate shrink-0">
         {matchup.traitB}
       </span>
@@ -60,20 +55,24 @@ function MatchupBar({ matchup }: { matchup: Matchup }) {
 }
 
 export default function MatchupsPage() {
-  const [matchups, setMatchups] = useState<Matchup[]>([]);
+  const [typeMatchups, setTypeMatchups] = useState<Matchup[]>([]);
+  const [accessoryMatchups, setAccessoryMatchups] = useState<Matchup[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchMatchups = useCallback(async () => {
     setLoading(true);
     const res = await fetch("/api/matchups");
     const data = await res.json();
-    setMatchups(data.matchups);
+    setTypeMatchups(data.typeMatchups);
+    setAccessoryMatchups(data.accessoryMatchups);
     setLoading(false);
   }, []);
 
   useEffect(() => {
     fetchMatchups();
   }, [fetchMatchups]);
+
+  const empty = typeMatchups.length === 0 && accessoryMatchups.length === 0;
 
   return (
     <main className="min-h-screen flex flex-col items-center px-4 py-8">
@@ -112,16 +111,34 @@ export default function MatchupsPage() {
 
       {/* Matchups */}
       <div className={`w-full max-w-2xl transition-opacity duration-150 ${loading ? "opacity-50" : "opacity-100"}`}>
-        {matchups.length === 0 && !loading ? (
+        {empty && !loading ? (
           <div className="text-neutral-500 text-sm text-center mt-12 font-mono-caps">
             NOT ENOUGH VOTES YET
           </div>
         ) : (
-          <div className="flex flex-col">
-            {matchups.map((m, i) => (
-              <MatchupBar key={`${m.traitA}-${m.traitB}-${i}`} matchup={m} />
-            ))}
-          </div>
+          <>
+            {typeMatchups.length > 0 && (
+              <div className="mb-6">
+                <h2 className="font-mono-caps text-[10px] text-neutral-600 mb-2">TYPES</h2>
+                <div className="flex flex-col">
+                  {typeMatchups.map((m, i) => (
+                    <MatchupBar key={`t-${m.traitA}-${m.traitB}-${i}`} matchup={m} />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {accessoryMatchups.length > 0 && (
+              <div>
+                <h2 className="font-mono-caps text-[10px] text-neutral-600 mb-2">ACCESSORIES</h2>
+                <div className="flex flex-col">
+                  {accessoryMatchups.map((m, i) => (
+                    <MatchupBar key={`a-${m.traitA}-${m.traitB}-${i}`} matchup={m} />
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     </main>

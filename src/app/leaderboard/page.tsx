@@ -199,8 +199,8 @@ export default function LeaderboardPage() {
             ) : (
               <>
                 {/* Column headers */}
-                <div className={`grid gap-x-3 items-center font-mono-caps text-[10px] text-neutral-500 mb-2 px-3 ${hasPrices ? "grid-cols-[2rem_1fr_3rem_3rem_3rem_3rem_2.5rem]" : "grid-cols-[2rem_1fr_3rem_2.5rem_2.5rem]"}`}>
-                  <span className="text-right">#</span>
+                <div className={`grid gap-x-2 items-center font-mono-caps text-[10px] text-neutral-500 mb-2 px-2 ${hasPrices ? "grid-cols-[1.2rem_1fr_3rem_3rem_3rem_3rem_2.5rem]" : "grid-cols-[1.2rem_1fr_3rem_2.5rem_2.5rem]"}`}>
+                  <span>#</span>
                   <span>PUNK</span>
                   <span className="text-right">ELO</span>
                   {hasPrices && <span className="text-right">ETH</span>}
@@ -215,10 +215,10 @@ export default function LeaderboardPage() {
                     return (
                       <div
                         key={punk.id}
-                        className={`relative grid gap-x-3 items-center px-3 py-2 rounded-lg overflow-hidden ${hasPrices ? "grid-cols-[2rem_1fr_3rem_3rem_3rem_3rem_2.5rem]" : "grid-cols-[2rem_1fr_3rem_2.5rem_2.5rem]"}`}
+                        className={`relative grid gap-x-2 items-center px-2 py-2 rounded-lg overflow-hidden ${hasPrices ? "grid-cols-[1.2rem_1fr_3rem_3rem_3rem_3rem_2.5rem]" : "grid-cols-[1.2rem_1fr_3rem_2.5rem_2.5rem]"}`}
                       >
                         <EloBar elo={punk.elo} min={eloMin} max={eloMax} />
-                        <span className="relative font-mono-caps text-[10px] text-neutral-600 text-right">
+                        <span className="relative font-mono-caps text-[10px] text-neutral-600">
                           {rank}
                         </span>
                         <div className="relative flex items-center gap-3">
@@ -306,8 +306,8 @@ export default function LeaderboardPage() {
             ) : (
               <>
                 {/* Column headers */}
-                <div className="grid grid-cols-[2rem_1fr_3.5rem_3rem_3rem_2.5rem] gap-x-3 items-center font-mono-caps text-[10px] text-neutral-500 mb-2 px-3">
-                  <span className="text-right">#</span>
+                <div className="grid grid-cols-[1.2rem_1fr_3.5rem_3rem_3rem_2.5rem] gap-x-2 items-center font-mono-caps text-[10px] text-neutral-500 mb-2 px-2">
+                  <span>#</span>
                   <span>TRAIT</span>
                   <span className="text-right">AVG ELO</span>
                   <span className="text-right">PUNKS</span>
@@ -319,10 +319,10 @@ export default function LeaderboardPage() {
                   {traits.map((trait, i) => (
                     <div
                       key={trait.trait}
-                      className="relative grid grid-cols-[2rem_1fr_3.5rem_3rem_3rem_2.5rem] gap-x-3 items-center px-3 py-2 rounded-lg overflow-hidden"
+                      className="relative grid grid-cols-[1.2rem_1fr_3.5rem_3rem_3rem_2.5rem] gap-x-2 items-center px-2 py-2 rounded-lg overflow-hidden"
                     >
                       <EloBar elo={trait.avg_elo} min={traitEloMin} max={traitEloMax} />
-                      <span className="relative font-mono-caps text-[10px] text-neutral-600 text-right">
+                      <span className="relative font-mono-caps text-[10px] text-neutral-600">
                         {i + 1}
                       </span>
                       <span className="relative font-mono-caps text-[10px] font-bold text-neutral-300 truncate">

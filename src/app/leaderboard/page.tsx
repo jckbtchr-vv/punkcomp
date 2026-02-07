@@ -222,7 +222,7 @@ export default function LeaderboardPage() {
                           {rank}
                         </span>
                         <div className="relative flex items-center gap-3">
-                          <PunkImage punkId={punk.id} className="w-8 shrink-0" />
+                          <PunkImage punkId={punk.id} className="w-8 shrink-0 rounded-full" />
                           <span className="font-mono-caps text-[10px] font-bold text-neutral-300">
                             #{punk.id.toString().padStart(4, "0")}
                           </span>

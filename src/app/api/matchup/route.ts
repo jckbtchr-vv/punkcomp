@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { createMatchupToken } from "@/lib/matchup-tokens";
 
 export const dynamic = "force-dynamic";
 
@@ -8,5 +9,7 @@ export async function GET() {
   let b = Math.floor(Math.random() * 9999);
   if (b >= a) b++;
 
-  return NextResponse.json({ punk1: a, punk2: b });
+  const token = createMatchupToken(a, b);
+
+  return NextResponse.json({ punk1: a, punk2: b, token });
 }

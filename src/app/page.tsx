@@ -8,6 +8,7 @@ import Link from "next/link";
 export default function VotePage() {
   const [punk1, setPunk1] = useState<number>(0);
   const [punk2, setPunk2] = useState<number>(1);
+  const [matchupToken, setMatchupToken] = useState<string>("");
   const [ready, setReady] = useState(false);
   const [voting, setVoting] = useState(false);
   const [voteCount, setVoteCount] = useState(0);
@@ -18,6 +19,7 @@ export default function VotePage() {
     const data = await res.json();
     setPunk1(data.punk1);
     setPunk2(data.punk2);
+    setMatchupToken(data.token);
     setReady(true);
     setSelected(null);
   }, []);
@@ -33,7 +35,7 @@ export default function VotePage() {
     await fetch("/api/vote", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ winnerId, loserId }),
+      body: JSON.stringify({ winnerId, loserId, token: matchupToken }),
     });
     setVoteCount((c) => c + 1);
     setVoting(false);

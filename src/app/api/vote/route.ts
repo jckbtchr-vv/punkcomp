@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { calculateElo } from "@/lib/elo";
-import { checkRateLimit } from "@/lib/ratelimit";
+import { checkRateLimit, checkPunkLimit, checkPairLimit } from "@/lib/ratelimit";
+import { validateMatchupToken } from "@/lib/matchup-tokens";
 
 export async function POST(req: NextRequest) {
   const ip =
@@ -20,7 +21,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { winnerId, loserId } = await req.json();
+  const { winnerId, loserId, token } = await req.json();
 
   if (
     typeof winnerId !== "number" ||
@@ -32,6 +33,27 @@ export async function POST(req: NextRequest) {
     winnerId === loserId
   ) {
     return NextResponse.json({ error: "Invalid punk IDs" }, { status: 400 });
+  }
+
+  // Validate server-issued matchup token (prevents arbitrary vote submissions)
+  if (!token || !validateMatchupToken(token, winnerId, loserId)) {
+    return NextResponse.json({ error: "Invalid or expired matchup." }, { status: 403 });
+  }
+
+  // Prevent same pair being voted on repeatedly by same IP
+  if (!checkPairLimit(ip, winnerId, loserId)) {
+    return NextResponse.json(
+      { error: "Already voted on this matchup recently." },
+      { status: 429 }
+    );
+  }
+
+  // Prevent boosting a single punk (max 3 votes involving same punk per hour per IP)
+  if (!checkPunkLimit(ip, winnerId) || !checkPunkLimit(ip, loserId)) {
+    return NextResponse.json(
+      { error: "Too many votes involving the same punk." },
+      { status: 429 }
+    );
   }
 
   const db = getDb();

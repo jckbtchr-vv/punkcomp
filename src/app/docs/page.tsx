@@ -53,7 +53,7 @@ export default function DocsPage() {
     <main className="min-h-screen flex flex-col items-center px-4 py-8">
       <div className="mb-6 text-center h-16 flex flex-col justify-center">
         <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-1">
-          PUNKCOMP
+          PVP
         </h1>
         <p className="font-mono-caps text-xs text-neutral-500">API DOCS</p>
       </div>

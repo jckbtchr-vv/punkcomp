@@ -3,7 +3,7 @@ import Ticker from "@/components/Ticker";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "PunkComp",
+  title: "PVP",
   description: "Vote on CryptoPunks. Build the aesthetic leaderboard.",
 };
 

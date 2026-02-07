@@ -325,7 +325,7 @@ export default function LeaderboardPage() {
                       <span className="relative text-neutral-600 text-sm text-right">
                         {i + 1}
                       </span>
-                      <span className="relative font-mono-caps text-xs font-bold text-neutral-300">
+                      <span className="relative text-xs font-bold text-neutral-300 truncate">
                         {trait.trait}
                       </span>
                       <span className="relative text-sm font-bold text-green-400 text-right">

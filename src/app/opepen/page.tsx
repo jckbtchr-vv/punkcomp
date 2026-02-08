@@ -31,10 +31,18 @@ async function fetchOpepenMeta(id: number): Promise<OpepenMeta | null> {
     const image = data.image || "";
     const isUnrevealed = !image || name.toLowerCase().includes("unrevealed") || image.includes("unrevealed");
 
+    // Convert IPFS/Arweave URLs to gateway URLs
+    let resolvedImage = image;
+    if (resolvedImage.startsWith("ipfs://")) {
+      resolvedImage = resolvedImage.replace("ipfs://", "https://ipfs.io/ipfs/");
+    } else if (resolvedImage.startsWith("ar://")) {
+      resolvedImage = resolvedImage.replace("ar://", "https://arweave.net/");
+    }
+
     return {
       id,
       name,
-      image,
+      image: resolvedImage,
       set: setAttr?.value?.toString() || null,
       edition: editionAttr?.value || null,
       revealed: !isUnrevealed,
@@ -142,6 +150,13 @@ export default function OpepenVotePage() {
         &larr; PUNKS
       </Link>
 
+      <Link
+        href="/opepen/leaderboard"
+        className="absolute top-4 right-4 font-mono-caps text-[10px] text-green-500 hover:text-green-400 border border-green-500/50 hover:border-green-400 px-3 py-1.5 rounded-lg transition-colors"
+      >
+        LEADERBOARD &rarr;
+      </Link>
+
       {/* Header */}
       <div className="mb-8 text-center h-16 flex flex-col justify-center">
         <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-1">
@@ -174,6 +189,7 @@ export default function OpepenVotePage() {
                     src={opepen1.image}
                     alt={opepen1.name}
                     className="w-full h-full object-cover"
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
                   />
                 </div>
                 <div className="flex flex-col items-center gap-0.5">
@@ -202,6 +218,7 @@ export default function OpepenVotePage() {
                     src={opepen2.image}
                     alt={opepen2.name}
                     className="w-full h-full object-cover"
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
                   />
                 </div>
                 <div className="flex flex-col items-center gap-0.5">

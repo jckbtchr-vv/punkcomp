@@ -81,20 +81,11 @@ export default function VotePage() {
 
   const cardClass = (side: "left" | "right") => {
     const isSelected = selected === side;
-    return `group flex flex-col items-center gap-3 p-3 sm:p-4 rounded-xl border transition-all duration-150 cursor-pointer disabled:cursor-default ${
+    return `group flex flex-col items-center overflow-hidden rounded-xl border transition-all duration-150 cursor-pointer disabled:cursor-default ${
       isSelected
         ? "border-green-500 bg-green-500/10"
         : "border-neutral-800 hover:border-green-500 hover:bg-green-500/5"
     } ${busy ? "opacity-50 pointer-events-none" : ""}`;
-  };
-
-  const labelClass = (side: "left" | "right") => {
-    const isSelected = selected === side;
-    return `font-mono-caps text-xs font-bold transition-colors ${
-      isSelected
-        ? "text-green-400"
-        : "text-neutral-400 group-hover:text-green-400"
-    }`;
   };
 
   return (
@@ -136,7 +127,7 @@ export default function VotePage() {
           className={cardClass("left")}
         >
           <PunkImage punkId={punk1} className="w-[140px] sm:w-[192px]" />
-          <span className={labelClass("left")}>
+          <span className="font-mono-caps text-xs text-neutral-600 py-2 transition-colors">
             #{punk1.toString().padStart(4, "0")}
           </span>
         </button>
@@ -147,7 +138,7 @@ export default function VotePage() {
           className={cardClass("right")}
         >
           <PunkImage punkId={punk2} className="w-[140px] sm:w-[192px]" />
-          <span className={labelClass("right")}>
+          <span className="font-mono-caps text-xs text-neutral-600 py-2 transition-colors">
             #{punk2.toString().padStart(4, "0")}
           </span>
         </button>

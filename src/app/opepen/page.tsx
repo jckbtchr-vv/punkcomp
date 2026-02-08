@@ -205,10 +205,6 @@ export default function OpepenVotePage() {
             RETRY
           </button>
         </div>
-      ) : loading ? (
-        <div className="flex items-center justify-center" style={{ minHeight: 280 }}>
-          <span className="font-mono-caps text-xs text-neutral-500">LOADING OPEPEN...</span>
-        </div>
       ) : (
         <>
           {/* Matchup */}
@@ -216,63 +212,81 @@ export default function OpepenVotePage() {
             className="flex flex-row items-center gap-4 sm:gap-12"
             style={{ minHeight: 280 }}
           >
-            {opepen1 && (
-              <button
-                onClick={() => vote(opepen1.id, opepen2!.id, "left")}
-                disabled={busy}
-                className={cardClass("left")}
-              >
-                <div className="w-[140px] sm:w-[192px] aspect-square rounded-lg overflow-hidden bg-neutral-900">
+            {/* Left card */}
+            <button
+              onClick={() => opepen1 && opepen2 && vote(opepen1.id, opepen2.id, "left")}
+              disabled={busy}
+              className={cardClass("left")}
+            >
+              <div className="w-[140px] sm:w-[192px] aspect-square rounded-lg overflow-hidden bg-neutral-900">
+                {opepen1 && !loading && (
                   <img
                     src={opepen1.image}
                     alt={opepen1.name}
                     className="w-full h-full object-cover"
                     onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
                   />
-                </div>
-                <div className="flex flex-col items-center gap-0.5">
-                  <span className={`font-mono-caps text-xs font-bold transition-colors ${
-                    selected === "left" ? "text-green-400" : "text-neutral-400 group-hover:text-green-400"
-                  }`}>
-                    #{opepen1.id}
+                )}
+              </div>
+              <div className="flex flex-col items-center gap-0.5">
+                {loading ? (
+                  <span className="font-mono-caps text-[10px] text-neutral-600">
+                    LOADING...
                   </span>
-                  {opepen1.set && (
-                    <span className="font-mono-caps text-[9px] text-neutral-600">
-                      SET {opepen1.set}
+                ) : opepen1 ? (
+                  <>
+                    <span className={`font-mono-caps text-xs font-bold transition-colors ${
+                      selected === "left" ? "text-green-400" : "text-neutral-400 group-hover:text-green-400"
+                    }`}>
+                      #{opepen1.id}
                     </span>
-                  )}
-                </div>
-              </button>
-            )}
+                    {opepen1.set && (
+                      <span className="font-mono-caps text-[9px] text-neutral-600">
+                        SET {opepen1.set}
+                      </span>
+                    )}
+                  </>
+                ) : null}
+              </div>
+            </button>
 
-            {opepen2 && (
-              <button
-                onClick={() => vote(opepen2.id, opepen1!.id, "right")}
-                disabled={busy}
-                className={cardClass("right")}
-              >
-                <div className="w-[140px] sm:w-[192px] aspect-square rounded-lg overflow-hidden bg-neutral-900">
+            {/* Right card */}
+            <button
+              onClick={() => opepen1 && opepen2 && vote(opepen2.id, opepen1.id, "right")}
+              disabled={busy}
+              className={cardClass("right")}
+            >
+              <div className="w-[140px] sm:w-[192px] aspect-square rounded-lg overflow-hidden bg-neutral-900">
+                {opepen2 && !loading && (
                   <img
                     src={opepen2.image}
                     alt={opepen2.name}
                     className="w-full h-full object-cover"
                     onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
                   />
-                </div>
-                <div className="flex flex-col items-center gap-0.5">
-                  <span className={`font-mono-caps text-xs font-bold transition-colors ${
-                    selected === "right" ? "text-green-400" : "text-neutral-400 group-hover:text-green-400"
-                  }`}>
-                    #{opepen2.id}
+                )}
+              </div>
+              <div className="flex flex-col items-center gap-0.5">
+                {loading ? (
+                  <span className="font-mono-caps text-[10px] text-neutral-600">
+                    LOADING...
                   </span>
-                  {opepen2.set && (
-                    <span className="font-mono-caps text-[9px] text-neutral-600">
-                      SET {opepen2.set}
+                ) : opepen2 ? (
+                  <>
+                    <span className={`font-mono-caps text-xs font-bold transition-colors ${
+                      selected === "right" ? "text-green-400" : "text-neutral-400 group-hover:text-green-400"
+                    }`}>
+                      #{opepen2.id}
                     </span>
-                  )}
-                </div>
-              </button>
-            )}
+                    {opepen2.set && (
+                      <span className="font-mono-caps text-[9px] text-neutral-600">
+                        SET {opepen2.set}
+                      </span>
+                    )}
+                  </>
+                ) : null}
+              </div>
+            </button>
           </div>
 
           {/* Skip */}

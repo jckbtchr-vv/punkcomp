@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import PunkImage from "@/components/PunkImage";
 import OnlineCount from "@/components/OnlineCount";
 import Link from "next/link";
@@ -13,6 +13,9 @@ export default function VotePage() {
   const [voting, setVoting] = useState(false);
   const [voteCount, setVoteCount] = useState(0);
   const [selected, setSelected] = useState<"left" | "right" | null>(null);
+  const [punk1Traits, setPunk1Traits] = useState<string[]>([]);
+  const [punk2Traits, setPunk2Traits] = useState<string[]>([]);
+  const [taste, setTaste] = useState<Map<string, number>>(new Map());
 
   const fetchMatchup = useCallback(async () => {
     const res = await fetch("/api/matchup");
@@ -20,6 +23,8 @@ export default function VotePage() {
     setPunk1(data.punk1);
     setPunk2(data.punk2);
     setMatchupToken(data.token);
+    setPunk1Traits(data.punk1Traits || []);
+    setPunk2Traits(data.punk2Traits || []);
     setReady(true);
     setSelected(null);
   }, []);
@@ -37,6 +42,14 @@ export default function VotePage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ winnerId, loserId, token: matchupToken }),
     });
+    const winnerTraits = side === "left" ? punk1Traits : punk2Traits;
+    const loserTraits = side === "left" ? punk2Traits : punk1Traits;
+    setTaste((prev) => {
+      const next = new Map(prev);
+      for (const t of winnerTraits) next.set(t, (next.get(t) || 0) + 1);
+      for (const t of loserTraits) next.set(t, (next.get(t) || 0) - 1);
+      return next;
+    });
     setVoteCount((c) => c + 1);
     window.dispatchEvent(new Event("vote"));
     setVoting(false);
@@ -52,6 +65,15 @@ export default function VotePage() {
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
   });
+
+  const topTraits = useMemo(() => {
+    if (voteCount < 4) return [];
+    return [...taste.entries()]
+      .filter(([, v]) => v > 0)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([t]) => t.toUpperCase());
+  }, [taste, voteCount]);
 
   const busy = !ready || voting;
 
@@ -140,10 +162,12 @@ export default function VotePage() {
         </button>
       </div>
 
-      {/* Vote count */}
+      {/* Taste profile / vote count */}
       <div className="mt-12 h-8 flex items-center justify-center">
         <p className={`font-mono-caps text-[10px] text-neutral-600 ${voteCount > 0 ? "visible" : "invisible"}`}>
-          {voteCount} vote{voteCount !== 1 ? "s" : ""} this session
+          {topTraits.length > 0
+            ? `YOU LIKE ${topTraits.join(" · ")}`
+            : `${voteCount} vote${voteCount !== 1 ? "s" : ""} this session`}
         </p>
       </div>
 

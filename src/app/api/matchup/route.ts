@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createMatchupToken } from "@/lib/matchup-tokens";
+import { getDb } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -11,5 +12,12 @@ export async function GET() {
 
   const token = createMatchupToken(a, b);
 
-  return NextResponse.json({ punk1: a, punk2: b, token });
+  const db = getDb();
+  const traitsA = (db.prepare("SELECT trait FROM punk_traits WHERE punk_id = ?").all(a) as { trait: string }[]).map(r => r.trait);
+  const traitsB = (db.prepare("SELECT trait FROM punk_traits WHERE punk_id = ?").all(b) as { trait: string }[]).map(r => r.trait);
+
+  return NextResponse.json({
+    punk1: a, punk2: b, token,
+    punk1Traits: traitsA, punk2Traits: traitsB,
+  });
 }

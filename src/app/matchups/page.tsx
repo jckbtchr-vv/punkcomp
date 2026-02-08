@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 interface Matchup {
@@ -62,7 +63,16 @@ function MatchupBar({ matchup, onClickTrait }: { matchup: Matchup; onClickTrait:
   );
 }
 
-export default function MatchupsPage() {
+export default function MatchupsPageWrapper() {
+  return (
+    <Suspense>
+      <MatchupsPage />
+    </Suspense>
+  );
+}
+
+function MatchupsPage() {
+  const searchParams = useSearchParams();
   const [typeMatchups, setTypeMatchups] = useState<Matchup[]>([]);
   const [accessoryMatchups, setAccessoryMatchups] = useState<Matchup[]>([]);
   const [traitCountMatchups, setTraitCountMatchups] = useState<Matchup[]>([]);
@@ -90,8 +100,9 @@ export default function MatchupsPage() {
   }, [fetchMatchups]);
 
   useEffect(() => {
-    fetchMatchups();
-  }, [fetchMatchups]);
+    const trait = searchParams.get("trait");
+    fetchMatchups(trait || undefined);
+  }, [fetchMatchups, searchParams]);
 
   const empty = typeMatchups.length === 0 && accessoryMatchups.length === 0 && traitCountMatchups.length === 0;
 

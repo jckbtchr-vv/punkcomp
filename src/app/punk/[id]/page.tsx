@@ -140,14 +140,21 @@ export default function PunkDetailPage() {
           <h3 className="font-mono-caps text-[10px] text-neutral-600 mb-3">TRAITS</h3>
           <div className="flex flex-wrap gap-2">
             {punk.type && (
-              <span className="font-mono-caps text-[10px] px-3 py-1.5 rounded-lg bg-neutral-800 text-neutral-300 border border-neutral-700">
+              <Link
+                href={`/matchups?trait=${encodeURIComponent(punk.type)}`}
+                className="font-mono-caps text-[10px] px-3 py-1.5 rounded-lg bg-neutral-800 text-neutral-300 border border-neutral-700 hover:border-neutral-500 hover:text-white transition-colors"
+              >
                 {punk.type}
-              </span>
+              </Link>
             )}
             {punk.traits.map((trait) => (
-              <span key={trait} className="font-mono-caps text-[10px] px-3 py-1.5 rounded-lg bg-neutral-900 text-neutral-400 border border-neutral-800">
+              <Link
+                key={trait}
+                href={`/matchups?trait=${encodeURIComponent(trait)}`}
+                className="font-mono-caps text-[10px] px-3 py-1.5 rounded-lg bg-neutral-900 text-neutral-400 border border-neutral-800 hover:border-neutral-600 hover:text-white transition-colors"
+              >
                 {trait}
-              </span>
+              </Link>
             ))}
           </div>
         </div>

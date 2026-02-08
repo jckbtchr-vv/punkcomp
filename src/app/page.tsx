@@ -16,6 +16,7 @@ export default function VotePage() {
   const [punk1Traits, setPunk1Traits] = useState<string[]>([]);
   const [punk2Traits, setPunk2Traits] = useState<string[]>([]);
   const [taste, setTaste] = useState<Map<string, number>>(new Map());
+  const [upvoted, setUpvoted] = useState<number[]>([]);
 
   const fetchMatchup = useCallback(async () => {
     const res = await fetch("/api/matchup");
@@ -42,6 +43,7 @@ export default function VotePage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ winnerId, loserId, token: matchupToken }),
     });
+    setUpvoted((prev) => [winnerId, ...prev]);
     const winnerTraits = side === "left" ? punk1Traits : punk2Traits;
     const loserTraits = side === "left" ? punk2Traits : punk1Traits;
     setTaste((prev) => {
@@ -163,12 +165,23 @@ export default function VotePage() {
       </div>
 
       {/* Taste profile / vote count */}
-      <div className="mt-12 h-8 flex items-center justify-center">
+      <div className="mt-8 flex flex-col items-center gap-3">
         <p className={`font-mono-caps text-[10px] text-neutral-600 ${voteCount > 0 ? "visible" : "invisible"}`}>
           {topTraits.length > 0
             ? `YOU LIKE ${topTraits.join(" · ")}`
             : `${voteCount} vote${voteCount !== 1 ? "s" : ""} this session`}
         </p>
+        {upvoted.length > 0 && (
+          <div className="flex items-center gap-1">
+            {upvoted.map((id, i) => (
+              <PunkImage
+                key={`${id}-${i}`}
+                punkId={id}
+                className="w-6 h-6 rounded-full"
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Bottom right feature suggestion */}

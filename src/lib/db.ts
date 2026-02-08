@@ -130,6 +130,13 @@ function initDb(db: Database.Database) {
     seedTraits(db);
   }
 
+  // Add image_url column to opepen if missing
+  const opepenCols = db.prepare("PRAGMA table_info(opepen)").all() as { name: string }[];
+  const opepenColNames = opepenCols.map((c) => c.name);
+  if (!opepenColNames.includes("image_url")) {
+    db.exec("ALTER TABLE opepen ADD COLUMN image_url TEXT");
+  }
+
   // Seed 16,000 opepen if table is empty
   const opepenCount = db.prepare("SELECT COUNT(*) as c FROM opepen").get() as { c: number };
   if (opepenCount.c === 0) {

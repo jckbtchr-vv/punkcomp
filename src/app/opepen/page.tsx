@@ -12,6 +12,17 @@ interface OpepenMeta {
   revealed: boolean;
 }
 
+const reportedIds = new Set<number>();
+function reportImage(id: number, url: string) {
+  if (reportedIds.has(id) || !url.startsWith("http")) return;
+  reportedIds.add(id);
+  fetch("/api/opepen/report-image", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id, url }),
+  }).catch(() => {});
+}
+
 async function fetchOpepenMeta(id: number): Promise<OpepenMeta | null> {
   try {
     const res = await fetch(`https://api.opepen.art/${id}/metadata.json`);
@@ -89,6 +100,9 @@ export default function OpepenVotePage() {
         setMatchupToken(data.token);
         setReady(true);
         setLoading(false);
+        // Report image URLs so server can build thumbnail cache
+        if (meta1.image) reportImage(meta1.id, meta1.image);
+        if (meta2.image) reportImage(meta2.id, meta2.image);
         return;
       }
     }

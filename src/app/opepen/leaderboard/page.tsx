@@ -164,7 +164,7 @@ export default function OpepenLeaderboardPage() {
                     </span>
                     <div className="relative flex items-center gap-3">
                       <OpepenImage opepenId={op.id} className="w-8 h-8 shrink-0 rounded-full" />
-                      <span className="font-mono-caps text-[10px] font-bold text-neutral-300">
+                      <span className="font-mono-caps text-[10px] font-bold text-neutral-300 w-12 shrink-0">
                         #{op.id}
                       </span>
                     </div>

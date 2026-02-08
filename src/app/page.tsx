@@ -38,6 +38,7 @@ export default function VotePage() {
       body: JSON.stringify({ winnerId, loserId, token: matchupToken }),
     });
     setVoteCount((c) => c + 1);
+    window.dispatchEvent(new Event("vote"));
     setVoting(false);
     fetchMatchup();
   };

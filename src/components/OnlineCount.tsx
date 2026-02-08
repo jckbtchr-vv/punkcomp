@@ -20,6 +20,13 @@ export default function OnlineCount() {
     return () => clearInterval(interval);
   }, []);
 
+  // Increment instantly when a vote is cast on this page
+  useEffect(() => {
+    const onVote = () => setTotalVotes((v) => (v !== null ? v + 1 : v));
+    window.addEventListener("vote", onVote);
+    return () => window.removeEventListener("vote", onVote);
+  }, []);
+
   if (totalVotes === null || totalVotes === 0) return null;
 
   return (

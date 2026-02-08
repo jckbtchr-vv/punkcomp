@@ -10,8 +10,22 @@ export function getDb(): Database.Database {
   if (!db) {
     db = new Database(DB_PATH);
     db.pragma("journal_mode = WAL");
-    db.pragma("synchronous = NORMAL");
+    db.pragma("synchronous = FULL");
+    db.pragma("wal_autocheckpoint = 100");
     initDb(db);
+
+    // Graceful shutdown: checkpoint WAL and close DB
+    const shutdown = () => {
+      if (db) {
+        try {
+          db.pragma("wal_checkpoint(TRUNCATE)");
+          db.close();
+        } catch {}
+      }
+      process.exit(0);
+    };
+    process.on("SIGTERM", shutdown);
+    process.on("SIGINT", shutdown);
   }
   return db;
 }

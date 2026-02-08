@@ -62,6 +62,21 @@ function initDb(db: Database.Database) {
       key TEXT PRIMARY KEY,
       value TEXT NOT NULL
     );
+
+    CREATE TABLE IF NOT EXISTS opepen (
+      id INTEGER PRIMARY KEY,
+      elo REAL NOT NULL DEFAULT 1500,
+      wins INTEGER NOT NULL DEFAULT 0,
+      losses INTEGER NOT NULL DEFAULT 0
+    );
+
+    CREATE TABLE IF NOT EXISTS opepen_votes (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      winner_id INTEGER NOT NULL,
+      loser_id INTEGER NOT NULL,
+      voter_ip TEXT,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
   `);
 
   // Add columns if upgrading from older schema
@@ -113,6 +128,20 @@ function initDb(db: Database.Database) {
   const traitCount = db.prepare("SELECT COUNT(*) as c FROM punk_traits").get() as { c: number };
   if (traitCount.c === 0) {
     seedTraits(db);
+  }
+
+  // Seed 16,000 opepen if table is empty
+  const opepenCount = db.prepare("SELECT COUNT(*) as c FROM opepen").get() as { c: number };
+  if (opepenCount.c === 0) {
+    const insertOpepen = db.prepare(
+      "INSERT INTO opepen (id, elo, wins, losses) VALUES (?, 1500, 0, 0)"
+    );
+    const seedOpepen = db.transaction(() => {
+      for (let i = 1; i <= 16000; i++) {
+        insertOpepen.run(i);
+      }
+    });
+    seedOpepen();
   }
 }
 

@@ -97,7 +97,8 @@ export default function OpepenVotePage() {
         if (
           meta1 && meta2 &&
           meta1.revealed && meta2.revealed &&
-          meta1.set !== meta2.set
+          meta1.set !== meta2.set &&
+          meta1.image !== meta2.image
         ) {
           setOpepen1(meta1);
           setOpepen2(meta2);
@@ -235,11 +236,18 @@ export default function OpepenVotePage() {
                   </span>
                 ) : opepen1 ? (
                   <>
-                    <span className={`font-mono-caps text-xs font-bold transition-colors ${
-                      selected === "left" ? "text-green-400" : "text-neutral-400 group-hover:text-green-400"
-                    }`}>
-                      #{opepen1.id}
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <span className={`font-mono-caps text-xs font-bold transition-colors ${
+                        selected === "left" ? "text-green-400" : "text-neutral-400 group-hover:text-green-400"
+                      }`}>
+                        #{opepen1.id}
+                      </span>
+                      {opepen1.edition && parseInt(opepen1.edition) > 1 && (
+                        <span className="font-mono-caps text-[9px] text-neutral-600">
+                          +{parseInt(opepen1.edition) - 1}
+                        </span>
+                      )}
+                    </div>
                     {opepen1.set && (
                       <span className="font-mono-caps text-[9px] text-neutral-600">
                         SET {opepen1.set}
@@ -273,11 +281,18 @@ export default function OpepenVotePage() {
                   </span>
                 ) : opepen2 ? (
                   <>
-                    <span className={`font-mono-caps text-xs font-bold transition-colors ${
-                      selected === "right" ? "text-green-400" : "text-neutral-400 group-hover:text-green-400"
-                    }`}>
-                      #{opepen2.id}
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <span className={`font-mono-caps text-xs font-bold transition-colors ${
+                        selected === "right" ? "text-green-400" : "text-neutral-400 group-hover:text-green-400"
+                      }`}>
+                        #{opepen2.id}
+                      </span>
+                      {opepen2.edition && parseInt(opepen2.edition) > 1 && (
+                        <span className="font-mono-caps text-[9px] text-neutral-600">
+                          +{parseInt(opepen2.edition) - 1}
+                        </span>
+                      )}
+                    </div>
                     {opepen2.set && (
                       <span className="font-mono-caps text-[9px] text-neutral-600">
                         SET {opepen2.set}

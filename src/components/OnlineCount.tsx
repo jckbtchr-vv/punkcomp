@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 
 function timeAgo(dateStr: string): string {
-  const seconds = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
+  // SQLite datetime('now') stores UTC without Z suffix; ensure we parse as UTC
+  const utcStr = dateStr.includes("T") ? dateStr : dateStr.replace(" ", "T") + "Z";
+  const seconds = Math.floor((Date.now() - new Date(utcStr).getTime()) / 1000);
   if (seconds < 5) return "JUST NOW";
   if (seconds < 60) return `${seconds}s AGO`;
   const minutes = Math.floor(seconds / 60);

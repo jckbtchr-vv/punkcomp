@@ -24,7 +24,7 @@ function MatchupBar({ matchup, onClickTrait }: { matchup: Matchup; onClickTrait:
       </span>
       <div className="flex-1 flex h-5 rounded overflow-hidden bg-neutral-900/50">
         <div
-          className="flex items-center justify-end pr-1.5 rounded-l"
+          className={`flex items-center justify-end pr-1.5 ${bPct === 0 ? "rounded" : "rounded-l"}`}
           style={{
             width: `${matchup.aPct}%`,
             background: "linear-gradient(90deg, rgba(34,197,94,0.08) 0%, rgba(34,197,94,0.25) 100%)",
@@ -36,19 +36,21 @@ function MatchupBar({ matchup, onClickTrait }: { matchup: Matchup; onClickTrait:
             </span>
           )}
         </div>
-        <div
-          className="flex items-center justify-start pl-1.5 rounded-r"
-          style={{
-            width: `${bPct}%`,
-            background: "linear-gradient(90deg, rgba(239,68,68,0.25) 0%, rgba(239,68,68,0.08) 100%)",
-          }}
-        >
-          {bPct > 15 && (
-            <span className="font-mono-caps text-[9px] text-red-400/80">
-              {bPct}%
-            </span>
-          )}
-        </div>
+        {bPct > 0 && (
+          <div
+            className={`flex items-center justify-start pl-1.5 ${matchup.aPct === 0 ? "rounded" : "rounded-r"}`}
+            style={{
+              width: `${bPct}%`,
+              background: "linear-gradient(90deg, rgba(239,68,68,0.25) 0%, rgba(239,68,68,0.08) 100%)",
+            }}
+          >
+            {bPct > 15 && (
+              <span className="font-mono-caps text-[9px] text-red-400/80">
+                {bPct}%
+              </span>
+            )}
+          </div>
+        )}
       </div>
       <span
         className="font-mono-caps text-[10px] text-red-400 w-28 truncate shrink-0 cursor-pointer hover:underline"

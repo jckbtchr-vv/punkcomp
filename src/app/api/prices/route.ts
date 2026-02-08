@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { syncPrices, getLastSyncTime, hasPriceData } from "@/lib/prices";
 
 export const dynamic = "force-dynamic";
@@ -8,12 +8,18 @@ export async function GET() {
   return NextResponse.json({
     hasPriceData: hasPriceData(),
     lastSync: getLastSyncTime(),
-    alchemyKeyConfigured: !!process.env.ALCHEMY_API_KEY,
   });
 }
 
-// POST: trigger a sync
-export async function POST() {
+// POST: trigger a sync (requires ADMIN_SECRET)
+export async function POST(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const secret = searchParams.get("secret");
+  const expected = process.env.ADMIN_SECRET;
+  if (!expected || secret !== expected) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   if (!process.env.ALCHEMY_API_KEY) {
     return NextResponse.json(
       { error: "ALCHEMY_API_KEY not configured" },

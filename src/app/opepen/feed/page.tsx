@@ -108,7 +108,7 @@ export default function OpepenFeedPage() {
                 {/* Winner */}
                 <Link href={`/opepen/${vote.winnerId}`} className="flex items-center gap-2 group">
                   <OpepenImage opepenId={vote.winnerId} className="w-8 h-8 rounded-full shrink-0" />
-                  <div className="flex flex-col">
+                  <div className="flex flex-col w-14">
                     <span className="font-mono-caps text-[10px] text-green-400 group-hover:underline">
                       #{vote.winnerId}
                     </span>
@@ -124,7 +124,7 @@ export default function OpepenFeedPage() {
                 {/* Loser */}
                 <Link href={`/opepen/${vote.loserId}`} className="flex items-center gap-2 group">
                   <OpepenImage opepenId={vote.loserId} className="w-8 h-8 rounded-full shrink-0" />
-                  <div className="flex flex-col">
+                  <div className="flex flex-col w-14">
                     <span className="font-mono-caps text-[10px] text-red-400 group-hover:underline">
                       #{vote.loserId}
                     </span>

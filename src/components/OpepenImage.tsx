@@ -30,52 +30,20 @@ export default function OpepenImage({
   opepenId: number;
   className?: string;
 }) {
-  const [src, setSrc] = useState<string | null>(imageCache.get(opepenId) || null);
+  // Start with local thumbnail URL - the img onError handles fallback
+  const cached = imageCache.get(opepenId);
+  const [src, setSrc] = useState<string | null>(cached || `/api/opepen/image/${opepenId}`);
   const [error, setError] = useState(false);
 
   useEffect(() => {
+    // If we already have a known-good URL, use it
     if (imageCache.has(opepenId)) {
       setSrc(imageCache.get(opepenId)!);
-      return;
+      setError(false);
     }
-
-    let cancelled = false;
-
-    // Try local thumbnail first
-    const localUrl = `/api/opepen/image/${opepenId}`;
-    fetch(localUrl, { method: "HEAD" })
-      .then((r) => {
-        if (cancelled) return;
-        if (r.ok) {
-          imageCache.set(opepenId, localUrl);
-          setSrc(localUrl);
-        } else {
-          // Fall back to fetching metadata from opepen API
-          return fetchFromApi();
-        }
-      })
-      .catch(() => {
-        if (!cancelled) fetchFromApi();
-      });
-
-    function fetchFromApi() {
-      fetch(`https://api.opepen.art/${opepenId}/metadata.json`)
-        .then((r) => r.json())
-        .then((data) => {
-          if (cancelled) return;
-          const url = resolveUrl(data.image || "");
-          imageCache.set(opepenId, url);
-          setSrc(url);
-          // Report URL so server can cache a thumbnail
-          reportImageUrl(opepenId, url);
-        })
-        .catch(() => {});
-    }
-
-    return () => { cancelled = true; };
   }, [opepenId]);
 
-  if (!src || error) {
+  if (error) {
     return (
       <div className={`bg-neutral-800 flex items-center justify-center ${className}`}>
         <span className="font-mono-caps text-[8px] text-neutral-600">#{opepenId}</span>
@@ -85,14 +53,12 @@ export default function OpepenImage({
 
   return (
     <img
-      src={src}
+      src={src || undefined}
       alt={`Opepen #${opepenId}`}
       className={`object-cover ${className}`}
       onError={() => {
-        // If local thumb failed, try original URL
-        if (src.startsWith("/api/opepen/image/")) {
-          imageCache.delete(opepenId);
-          setError(false);
+        if (src?.startsWith("/api/opepen/image/")) {
+          // Local thumb not cached yet - fetch metadata from external API
           fetch(`https://api.opepen.art/${opepenId}/metadata.json`)
             .then((r) => r.json())
             .then((data) => {

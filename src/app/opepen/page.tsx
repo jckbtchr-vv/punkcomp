@@ -72,43 +72,52 @@ export default function OpepenVotePage() {
   const [voteCount, setVoteCount] = useState(0);
   const [selected, setSelected] = useState<"left" | "right" | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   const fetchMatchup = useCallback(async () => {
     setReady(false);
     setSelected(null);
     setLoading(true);
+    setError(false);
 
     // Keep trying until we get two revealed opepen from different sets
     let attempts = 0;
     while (attempts < 20) {
       attempts++;
-      const res = await fetch("/api/opepen/matchup");
-      const data = await res.json();
+      try {
+        const res = await fetch("/api/opepen/matchup");
+        if (!res.ok) continue;
+        const data = await res.json();
 
-      const [meta1, meta2] = await Promise.all([
-        fetchOpepenMeta(data.opepen1),
-        fetchOpepenMeta(data.opepen2),
-      ]);
+        const [meta1, meta2] = await Promise.all([
+          fetchOpepenMeta(data.opepen1),
+          fetchOpepenMeta(data.opepen2),
+        ]);
 
-      if (
-        meta1 && meta2 &&
-        meta1.revealed && meta2.revealed &&
-        meta1.set !== meta2.set
-      ) {
-        setOpepen1(meta1);
-        setOpepen2(meta2);
-        setMatchupToken(data.token);
-        setReady(true);
-        setLoading(false);
-        // Report image URLs so server can build thumbnail cache
-        if (meta1.image) reportImage(meta1.id, meta1.image);
-        if (meta2.image) reportImage(meta2.id, meta2.image);
-        return;
+        if (
+          meta1 && meta2 &&
+          meta1.revealed && meta2.revealed &&
+          meta1.set !== meta2.set
+        ) {
+          setOpepen1(meta1);
+          setOpepen2(meta2);
+          setMatchupToken(data.token);
+          setReady(true);
+          setLoading(false);
+          // Report image URLs so server can build thumbnail cache
+          if (meta1.image) reportImage(meta1.id, meta1.image);
+          if (meta2.image) reportImage(meta2.id, meta2.image);
+          return;
+        }
+      } catch {
+        // Network error on this attempt, try again
+        continue;
       }
     }
 
-    // Fallback: show whatever we got
+    // All attempts failed
     setLoading(false);
+    setError(true);
   }, []);
 
   useEffect(() => {
@@ -119,14 +128,19 @@ export default function OpepenVotePage() {
     if (voting || !ready) return;
     setSelected(side);
     setVoting(true);
-    await fetch("/api/opepen/vote", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ winnerId, loserId, token: matchupToken }),
-    });
-    setVoteCount((c) => c + 1);
-    setVoting(false);
-    fetchMatchup();
+    try {
+      await fetch("/api/opepen/vote", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ winnerId, loserId, token: matchupToken }),
+      });
+      setVoteCount((c) => c + 1);
+    } catch {
+      // Vote failed, still advance to next matchup
+    } finally {
+      setVoting(false);
+      fetchMatchup();
+    }
   };
 
   // Keyboard voting
@@ -181,7 +195,17 @@ export default function OpepenVotePage() {
         </p>
       </div>
 
-      {loading ? (
+      {error ? (
+        <div className="flex flex-col items-center justify-center gap-4" style={{ minHeight: 280 }}>
+          <span className="font-mono-caps text-xs text-neutral-500">FAILED TO LOAD MATCHUP</span>
+          <button
+            onClick={fetchMatchup}
+            className="font-mono-caps text-xs text-green-500 hover:text-green-400 border border-green-500/50 hover:border-green-400 px-4 py-2 rounded-lg transition-colors cursor-pointer"
+          >
+            RETRY
+          </button>
+        </div>
+      ) : loading ? (
         <div className="flex items-center justify-center" style={{ minHeight: 280 }}>
           <span className="font-mono-caps text-xs text-neutral-500">LOADING OPEPEN...</span>
         </div>

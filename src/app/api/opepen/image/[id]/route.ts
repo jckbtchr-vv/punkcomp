@@ -12,6 +12,10 @@ if (!fs.existsSync(THUMB_DIR)) {
   fs.mkdirSync(THUMB_DIR, { recursive: true });
 }
 
+// Limit concurrent sharp operations to prevent OOM crashes
+let activeResizes = 0;
+const MAX_CONCURRENT = 3;
+
 export const dynamic = "force-dynamic";
 
 export async function GET(
@@ -48,7 +52,13 @@ export async function GET(
     return new NextResponse("Not cached yet", { status: 404 });
   }
 
+  // Too many concurrent resizes - return 404 so client falls back to original
+  if (activeResizes >= MAX_CONCURRENT) {
+    return new NextResponse("Busy", { status: 404 });
+  }
+
   // Fetch and resize
+  activeResizes++;
   try {
     const res = await fetch(row.image_url, { signal: AbortSignal.timeout(10000) });
     if (!res.ok) {
@@ -58,6 +68,11 @@ export async function GET(
     const contentType = res.headers.get("content-type") || "";
     const arrayBuf = await res.arrayBuffer();
     const inputBuf = Buffer.from(arrayBuf);
+
+    // Reject overly large images (>10MB) to prevent OOM
+    if (inputBuf.length > 10 * 1024 * 1024) {
+      return new NextResponse("Image too large", { status: 502 });
+    }
 
     let webpBuf: Buffer;
 
@@ -85,5 +100,7 @@ export async function GET(
     });
   } catch {
     return new NextResponse("Failed to process image", { status: 502 });
+  } finally {
+    activeResizes--;
   }
 }

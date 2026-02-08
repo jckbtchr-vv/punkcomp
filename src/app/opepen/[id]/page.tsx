@@ -13,6 +13,8 @@ interface OpepenData {
   wins: number;
   losses: number;
   winRate: number;
+  editionSize: number;
+  siblingIds: number[];
 }
 
 interface HistoryEntry {
@@ -94,6 +96,11 @@ export default function OpepenDetailPage() {
           <h2 className="font-mono-caps text-lg mt-4 text-white">
             #{opepen.id}
           </h2>
+          {opepen.editionSize > 1 && (
+            <span className="font-mono-caps text-[10px] text-neutral-500 mt-1">
+              PRINT EDITION &middot; 1 OF {opepen.editionSize}
+            </span>
+          )}
         </div>
 
         {/* Stats grid */}
@@ -127,6 +134,34 @@ export default function OpepenDetailPage() {
             <div className="font-mono-caps text-sm text-white">{totalGames}</div>
           </div>
         </div>
+
+        {/* Siblings (print editions) */}
+        {opepen.siblingIds.length > 0 && (
+          <div className="mb-8">
+            <h3 className="font-mono-caps text-[10px] text-neutral-600 mb-3">
+              SAME IMAGE ({opepen.editionSize} TOKENS)
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              <span className="font-mono-caps text-[10px] px-3 py-1.5 rounded-lg bg-neutral-800 text-neutral-300 border border-neutral-700">
+                #{opepen.id}
+              </span>
+              {opepen.siblingIds.map((sid) => (
+                <Link
+                  key={sid}
+                  href={`/opepen/${sid}`}
+                  className="font-mono-caps text-[10px] px-3 py-1.5 rounded-lg bg-neutral-900 text-neutral-400 border border-neutral-800 hover:border-neutral-600 transition-colors"
+                >
+                  #{sid}
+                </Link>
+              ))}
+              {opepen.editionSize > opepen.siblingIds.length + 1 && (
+                <span className="font-mono-caps text-[10px] px-3 py-1.5 text-neutral-600">
+                  +{opepen.editionSize - opepen.siblingIds.length - 1} more
+                </span>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Vote history */}
         <div>

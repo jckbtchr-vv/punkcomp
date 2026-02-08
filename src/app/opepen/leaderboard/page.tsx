@@ -9,6 +9,7 @@ interface Opepen {
   elo: number;
   wins: number;
   losses: number;
+  editionSize: number;
 }
 
 function EloBar({ elo, min, max }: { elo: number; min: number; max: number }) {
@@ -167,6 +168,11 @@ export default function OpepenLeaderboardPage() {
                       <span className="font-mono-caps text-[10px] font-bold text-neutral-300 w-14 shrink-0">
                         #{op.id}
                       </span>
+                      {op.editionSize > 1 && (
+                        <span className="font-mono-caps text-[9px] text-neutral-600">
+                          1/{op.editionSize}
+                        </span>
+                      )}
                     </div>
                     <span className="relative font-mono-caps text-[10px] font-bold text-green-400 text-right">
                       {Math.round(op.elo)}

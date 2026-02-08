@@ -52,14 +52,34 @@ export async function POST(req: NextRequest) {
 
   const db = getDb();
 
-  const winner = db.prepare("SELECT elo FROM opepen WHERE id = ?").get(winnerId) as { elo: number };
-  const loser = db.prepare("SELECT elo FROM opepen WHERE id = ?").get(loserId) as { elo: number };
+  const winner = db.prepare("SELECT elo, image_group FROM opepen WHERE id = ?").get(winnerId) as {
+    elo: number;
+    image_group: string | null;
+  };
+  const loser = db.prepare("SELECT elo, image_group FROM opepen WHERE id = ?").get(loserId) as {
+    elo: number;
+    image_group: string | null;
+  };
 
   const { newWinnerElo, newLoserElo } = calculateElo(winner.elo, loser.elo);
 
   const update = db.transaction(() => {
+    // Update the specific tokens that were voted on
     db.prepare("UPDATE opepen SET elo = ?, wins = wins + 1 WHERE id = ?").run(newWinnerElo, winnerId);
     db.prepare("UPDATE opepen SET elo = ?, losses = losses + 1 WHERE id = ?").run(newLoserElo, loserId);
+
+    // Sync Elo to all siblings in the same image group (prints)
+    if (winner.image_group) {
+      db.prepare("UPDATE opepen SET elo = ? WHERE image_group = ? AND id != ?").run(
+        newWinnerElo, winner.image_group, winnerId
+      );
+    }
+    if (loser.image_group) {
+      db.prepare("UPDATE opepen SET elo = ? WHERE image_group = ? AND id != ?").run(
+        newLoserElo, loser.image_group, loserId
+      );
+    }
+
     db.prepare("INSERT INTO opepen_votes (winner_id, loser_id, voter_ip) VALUES (?, ?, ?)").run(winnerId, loserId, ip);
   });
 

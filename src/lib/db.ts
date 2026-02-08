@@ -136,6 +136,10 @@ function initDb(db: Database.Database) {
   if (!opepenColNames.includes("image_url")) {
     db.exec("ALTER TABLE opepen ADD COLUMN image_url TEXT");
   }
+  if (!opepenColNames.includes("image_group")) {
+    db.exec("ALTER TABLE opepen ADD COLUMN image_group TEXT");
+    db.exec("CREATE INDEX IF NOT EXISTS idx_opepen_image_group ON opepen(image_group)");
+  }
 
   // Seed 16,000 opepen if table is empty
   const opepenCount = db.prepare("SELECT COUNT(*) as c FROM opepen").get() as { c: number };

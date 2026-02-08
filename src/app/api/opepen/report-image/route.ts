@@ -1,6 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 
+function normalizeImageUrl(url: string): string {
+  // Strip query params and fragments to group identical images
+  try {
+    const u = new URL(url);
+    return `${u.origin}${u.pathname}`;
+  } catch {
+    return url;
+  }
+}
+
 export async function POST(req: NextRequest) {
   let id: number, url: string;
   try {
@@ -21,7 +31,10 @@ export async function POST(req: NextRequest) {
   }
 
   const db = getDb();
-  db.prepare("UPDATE opepen SET image_url = ? WHERE id = ? AND image_url IS NULL").run(url, id);
+  const group = normalizeImageUrl(url);
+  db.prepare(
+    "UPDATE opepen SET image_url = ?, image_group = ? WHERE id = ? AND image_url IS NULL"
+  ).run(url, group, id);
 
   return NextResponse.json({ ok: true });
 }

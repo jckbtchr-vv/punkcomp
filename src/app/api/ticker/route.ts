@@ -151,7 +151,7 @@ export async function GET() {
     .prepare(
       `SELECT type, COUNT(*) as c FROM punks
        WHERE type IS NOT NULL AND wins + losses > 0
-       GROUP BY type ORDER BY c DESC LIMIT 3`
+       GROUP BY type ORDER BY c DESC LIMIT 4`
     )
     .all() as { type: string; c: number }[];
   if (types.length > 0) {

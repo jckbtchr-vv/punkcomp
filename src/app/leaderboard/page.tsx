@@ -219,9 +219,10 @@ export default function LeaderboardPage() {
                   {punks.map((punk, i) => {
                     const rank = search ? "—" : (page - 1) * 50 + i + 1;
                     return (
-                      <div
+                      <Link
                         key={punk.id}
-                        className={`relative grid gap-x-2 items-center pl-2 pr-0 py-2 rounded-lg overflow-hidden ${hasPrices ? "grid-cols-[1.2rem_1fr_3rem_3rem_3rem_3rem_2.5rem]" : "grid-cols-[1.2rem_1fr_3rem_2.5rem_2.5rem]"}`}
+                        href={`/punk/${punk.id}`}
+                        className={`relative grid gap-x-2 items-center pl-2 pr-0 py-2 rounded-lg overflow-hidden hover:bg-neutral-800/30 transition-colors ${hasPrices ? "grid-cols-[1.2rem_1fr_3rem_3rem_3rem_3rem_2.5rem]" : "grid-cols-[1.2rem_1fr_3rem_2.5rem_2.5rem]"}`}
                       >
                         <EloBar elo={punk.elo} min={eloMin} max={eloMax} />
                         <span className="relative font-mono-caps text-[10px] text-neutral-600">
@@ -260,7 +261,7 @@ export default function LeaderboardPage() {
                         <span className="relative font-mono-caps text-[10px] text-neutral-500 text-right">
                           {punk.wins}/{punk.losses}
                         </span>
-                      </div>
+                      </Link>
                     );
                   })}
                 </div>

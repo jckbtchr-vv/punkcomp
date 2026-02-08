@@ -34,14 +34,20 @@ export async function POST(req: NextRequest) {
   const db = getDb();
   const group = normalizeImageUrl(url);
 
+  // Set image_url + image_group on first report
+  db.prepare(
+    "UPDATE opepen SET image_url = ?, image_group = ? WHERE id = ? AND image_url IS NULL"
+  ).run(url, group, id);
+
+  // Always backfill edition_size if we have it and it's missing
   if (edition && edition > 0) {
     db.prepare(
-      "UPDATE opepen SET image_url = ?, image_group = ?, edition_size = ? WHERE id = ? AND image_url IS NULL"
-    ).run(url, group, edition, id);
-  } else {
+      "UPDATE opepen SET edition_size = ? WHERE id = ? AND edition_size IS NULL"
+    ).run(edition, id);
+    // Also propagate edition_size to all siblings in the same image group
     db.prepare(
-      "UPDATE opepen SET image_url = ?, image_group = ? WHERE id = ? AND image_url IS NULL"
-    ).run(url, group, id);
+      "UPDATE opepen SET edition_size = ? WHERE image_group = ? AND edition_size IS NULL"
+    ).run(edition, group);
   }
 
   return NextResponse.json({ ok: true });

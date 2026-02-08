@@ -7,13 +7,15 @@ const imageCache = new Map<number, string>();
 // Track which IDs we've already reported to server
 const reported = new Set<number>();
 
-function reportImageUrl(id: number, url: string) {
+function reportImageUrl(id: number, url: string, edition?: number) {
   if (reported.has(id) || !url) return;
   reported.add(id);
+  const body: { id: number; url: string; edition?: number } = { id, url };
+  if (edition && edition > 0) body.edition = edition;
   fetch("/api/opepen/report-image", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ id, url }),
+    body: JSON.stringify(body),
   }).catch(() => {});
 }
 
@@ -66,7 +68,13 @@ export default function OpepenImage({
               if (url) {
                 imageCache.set(opepenId, url);
                 setSrc(url);
-                reportImageUrl(opepenId, url);
+                // Parse edition size from attributes
+                const attrs = data.attributes || [];
+                const editionAttr = attrs.find((a: { trait_type: string }) =>
+                  a.trait_type?.toLowerCase() === "edition size"
+                );
+                const edition = editionAttr ? parseInt(editionAttr.value) : undefined;
+                reportImageUrl(opepenId, url, edition);
               } else {
                 setError(true);
               }

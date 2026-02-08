@@ -13,9 +13,7 @@ export async function POST(req: NextRequest) {
   heartbeat(ip);
 
   const db = getDb();
-  const lastVote = db.prepare(
-    "SELECT created_at FROM votes ORDER BY id DESC LIMIT 1"
-  ).get() as { created_at: string } | undefined;
+  const row = db.prepare("SELECT COUNT(*) as c FROM votes").get() as { c: number };
 
-  return NextResponse.json({ online: getOnlineCount(), lastVoteAt: lastVote?.created_at ?? null });
+  return NextResponse.json({ online: getOnlineCount(), totalVotes: row.c });
 }

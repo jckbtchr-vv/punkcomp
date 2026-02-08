@@ -13,13 +13,15 @@ interface OpepenMeta {
 }
 
 const reportedIds = new Set<number>();
-function reportImage(id: number, url: string) {
+function reportImage(id: number, url: string, edition?: number) {
   if (reportedIds.has(id) || !url.startsWith("http")) return;
   reportedIds.add(id);
+  const body: { id: number; url: string; edition?: number } = { id, url };
+  if (edition && edition > 0) body.edition = edition;
   fetch("/api/opepen/report-image", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ id, url }),
+    body: JSON.stringify(body),
   }).catch(() => {});
 }
 
@@ -106,8 +108,8 @@ export default function OpepenVotePage() {
           setReady(true);
           setLoading(false);
           // Report image URLs so server can build thumbnail cache
-          if (meta1.image) reportImage(meta1.id, meta1.image);
-          if (meta2.image) reportImage(meta2.id, meta2.image);
+          if (meta1.image) reportImage(meta1.id, meta1.image, meta1.edition ? parseInt(meta1.edition) : undefined);
+          if (meta2.image) reportImage(meta2.id, meta2.image, meta2.edition ? parseInt(meta2.edition) : undefined);
           return;
         }
       } catch {

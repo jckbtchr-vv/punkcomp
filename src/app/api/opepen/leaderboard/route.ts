@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
     let wins = op.wins, losses = op.losses, editionSize = 1;
     if (op.image_group) {
       const agg = db.prepare(
-        "SELECT SUM(wins) as w, SUM(losses) as l, COUNT(*) as c FROM opepen WHERE image_group = ?"
+        "SELECT SUM(wins) as w, SUM(losses) as l, COALESCE(MAX(edition_size), 1) as c FROM opepen WHERE image_group = ?"
       ).get(op.image_group) as { w: number; l: number; c: number };
       wins = agg.w;
       losses = agg.l;
@@ -55,7 +55,7 @@ export async function GET(req: NextRequest) {
     .prepare(
       `SELECT MIN(id) as id, elo,
               SUM(wins) as wins, SUM(losses) as losses,
-              COUNT(*) as editionSize
+              COALESCE(MAX(edition_size), 1) as editionSize
        FROM opepen
        GROUP BY COALESCE(image_group, CAST(id AS TEXT))
        HAVING SUM(wins) + SUM(losses) > 0

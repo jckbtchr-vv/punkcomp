@@ -29,7 +29,7 @@ export async function GET(
   let siblingIds: number[] = [];
   if (op.image_group) {
     const agg = db.prepare(
-      "SELECT SUM(wins) as w, SUM(losses) as l, COUNT(*) as c FROM opepen WHERE image_group = ?"
+      "SELECT SUM(wins) as w, SUM(losses) as l, COALESCE(MAX(edition_size), 1) as c FROM opepen WHERE image_group = ?"
     ).get(op.image_group) as { w: number; l: number; c: number };
     totalWins = agg.w;
     totalLosses = agg.l;

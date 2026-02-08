@@ -12,11 +12,12 @@ function normalizeImageUrl(url: string): string {
 }
 
 export async function POST(req: NextRequest) {
-  let id: number, url: string;
+  let id: number, url: string, edition: number | undefined;
   try {
     const body = await req.json();
     id = body.id;
     url = body.url;
+    edition = typeof body.edition === "number" ? body.edition : undefined;
   } catch {
     return NextResponse.json({ error: "Invalid body" }, { status: 400 });
   }
@@ -32,9 +33,16 @@ export async function POST(req: NextRequest) {
 
   const db = getDb();
   const group = normalizeImageUrl(url);
-  db.prepare(
-    "UPDATE opepen SET image_url = ?, image_group = ? WHERE id = ? AND image_url IS NULL"
-  ).run(url, group, id);
+
+  if (edition && edition > 0) {
+    db.prepare(
+      "UPDATE opepen SET image_url = ?, image_group = ?, edition_size = ? WHERE id = ? AND image_url IS NULL"
+    ).run(url, group, edition, id);
+  } else {
+    db.prepare(
+      "UPDATE opepen SET image_url = ?, image_group = ? WHERE id = ? AND image_url IS NULL"
+    ).run(url, group, id);
+  }
 
   return NextResponse.json({ ok: true });
 }

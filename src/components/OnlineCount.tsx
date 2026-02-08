@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 export default function OnlineCount() {
   const [count, setCount] = useState(0);
@@ -20,7 +21,7 @@ export default function OnlineCount() {
   if (count === 0) return null;
 
   return (
-    <div className="fixed bottom-4 left-4 z-50 flex items-center gap-1.5">
+    <Link href="/feed" className="fixed bottom-4 left-4 z-50 flex items-center gap-1.5 hover:opacity-80 transition-opacity">
       <span className="relative flex h-2 w-2">
         <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
         <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
@@ -28,6 +29,6 @@ export default function OnlineCount() {
       <span className="font-mono-caps text-[10px] text-neutral-500">
         {count} ONLINE
       </span>
-    </div>
+    </Link>
   );
 }

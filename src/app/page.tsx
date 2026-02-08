@@ -76,12 +76,13 @@ export default function VotePage() {
     <main className="relative flex flex-col items-center justify-center px-4" style={{ height: "calc(100dvh - 28px)", overflow: "hidden" }}>
       <OnlineCount />
       {/* Top nav */}
-      <Link
+      {/* Opepen link hidden until edition grouping is fully polished */}
+      {/* <Link
         href="/opepen"
         className="absolute top-4 left-4 font-mono-caps text-[10px] text-neutral-600 hover:text-white border border-neutral-800 hover:border-neutral-600 px-3 py-1.5 rounded-lg transition-colors"
       >
         OPEPEN &rarr;
-      </Link>
+      </Link> */}
       <Link
         href="/leaderboard"
         className="absolute top-4 right-4 font-mono-caps text-[10px] text-green-500 hover:text-green-400 border border-green-500/50 hover:border-green-400 px-3 py-1.5 rounded-lg transition-colors"

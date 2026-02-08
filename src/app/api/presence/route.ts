@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { heartbeat, getOnlineCount } from "@/lib/presence";
+import { getDb } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -11,5 +12,10 @@ export async function POST(req: NextRequest) {
 
   heartbeat(ip);
 
-  return NextResponse.json({ online: getOnlineCount() });
+  const db = getDb();
+  const lastVote = db.prepare(
+    "SELECT created_at FROM votes ORDER BY id DESC LIMIT 1"
+  ).get() as { created_at: string } | undefined;
+
+  return NextResponse.json({ online: getOnlineCount(), lastVoteAt: lastVote?.created_at ?? null });
 }

@@ -17,7 +17,7 @@ function MatchupBar({ matchup, onClickTrait }: { matchup: Matchup; onClickTrait:
   return (
     <div className="flex items-center gap-2 py-1.5">
       <span
-        className="font-mono-caps text-[10px] text-green-400 w-28 text-right truncate shrink-0 cursor-pointer hover:underline"
+        className="font-mono-caps text-[10px] text-green-400 w-20 sm:w-28 text-right truncate shrink-0 cursor-pointer hover:underline"
         onClick={() => onClickTrait(matchup.traitA)}
       >
         {matchup.traitA}
@@ -53,7 +53,7 @@ function MatchupBar({ matchup, onClickTrait }: { matchup: Matchup; onClickTrait:
         )}
       </div>
       <span
-        className="font-mono-caps text-[10px] text-red-400 w-28 truncate shrink-0 cursor-pointer hover:underline"
+        className="font-mono-caps text-[10px] text-red-400 w-20 sm:w-28 truncate shrink-0 cursor-pointer hover:underline"
         onClick={() => onClickTrait(matchup.traitB)}
       >
         {matchup.traitB}

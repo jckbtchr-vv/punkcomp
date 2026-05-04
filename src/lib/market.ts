@@ -136,7 +136,7 @@ export async function fetchHolderLeaderboard(): Promise<CollectorData[]> {
     if (!res.ok) return [];
     const data = await res.json();
 
-    let holders = data.holders || data.leaderboard || data;
+    let holders = data.topHolders || data.holders || data.leaderboard || data.data?.topHolders;
 
     // If not an array, return empty
     if (!Array.isArray(holders)) return [];
@@ -146,15 +146,16 @@ export async function fetchHolderLeaderboard(): Promise<CollectorData[]> {
       owner?: string;
       ens?: string;
       ensName?: string;
+      ensAddress?: string;
       punks?: number[];
       punkIds?: number[];
       count?: number;
       punkCount?: number;
     }) => ({
       address: holder.address || holder.owner || "",
-      ensName: holder.ens || holder.ensName || null,
+      ensName: holder.ensAddress || holder.ens || holder.ensName || null,
       punkIds: holder.punks || holder.punkIds || [],
-      punkCount: holder.count || holder.punkCount || (holder.punks?.length ?? 0),
+      punkCount: holder.punkCount || holder.count || (holder.punks?.length ?? 0),
     }));
   } catch (error) {
     console.error("Failed to fetch holder leaderboard:", error);
@@ -265,39 +266,73 @@ export interface CollectorWithElo extends CollectorData {
 export function getCollectorsWithElo(): CollectorWithElo[] {
   const db = getDb();
 
+  // Get collectors from cache
   const collectors = db.prepare(`
-    SELECT
-      c.address,
-      c.ens_name,
-      c.punk_ids,
-      c.punk_count,
-      COALESCE(AVG(p.elo), 1500) as avg_elo,
-      COALESCE(SUM(p.elo), 0) as total_elo,
-      COUNT(CASE WHEN p.wins + p.losses > 0 THEN 1 END) as ranked_punk_count
-    FROM collectors c
-    LEFT JOIN json_each(c.punk_ids) AS punk_id
-    LEFT JOIN punks p ON p.id = punk_id.value
-    GROUP BY c.address
-    ORDER BY avg_elo DESC
+    SELECT address, ens_name, punk_ids, punk_count
+    FROM collectors
+    ORDER BY punk_count DESC
   `).all() as {
     address: string;
     ens_name: string | null;
     punk_ids: string;
     punk_count: number;
-    avg_elo: number;
-    total_elo: number;
-    ranked_punk_count: number;
   }[];
 
-  return collectors.map(c => ({
-    address: c.address,
-    ensName: c.ens_name,
-    punkIds: JSON.parse(c.punk_ids || "[]"),
-    punkCount: c.punk_count,
-    avgElo: Math.round(c.avg_elo * 100) / 100,
-    totalElo: Math.round(c.total_elo * 100) / 100,
-    rankedPunkCount: c.ranked_punk_count,
-  }));
+  // Compute ELO for each collector based on their punk IDs
+  return collectors.map(c => {
+    const punkIds: number[] = JSON.parse(c.punk_ids || "[]");
+
+    if (punkIds.length === 0) {
+      return {
+        address: c.address,
+        ensName: c.ens_name,
+        punkIds: [],
+        punkCount: c.punk_count,
+        avgElo: 1500,
+        totalElo: 0,
+        rankedPunkCount: 0,
+      };
+    }
+
+    // Get ELO stats for this collector's punks
+    const stats = db.prepare(`
+      SELECT
+        COALESCE(AVG(elo), 1500) as avg_elo,
+        COALESCE(SUM(elo), 0) as total_elo,
+        COUNT(CASE WHEN wins + losses > 0 THEN 1 END) as ranked_count
+      FROM punks
+      WHERE id IN (${punkIds.join(",")})
+    `).get() as { avg_elo: number; total_elo: number; ranked_count: number };
+
+    return {
+      address: c.address,
+      ensName: c.ens_name,
+      punkIds,
+      punkCount: c.punk_count,
+      avgElo: Math.round(stats.avg_elo * 100) / 100,
+      totalElo: Math.round(stats.total_elo * 100) / 100,
+      rankedPunkCount: stats.ranked_count,
+    };
+  });
+}
+
+// Fetch punk IDs for a specific account
+async function fetchAccountPunks(address: string): Promise<number[]> {
+  try {
+    const res = await fetch(`${BASE_URL}/account/${address}`, {
+      next: { revalidate: 3600 },
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+
+    const owned = data.data?.owned || data.owned || [];
+    if (!Array.isArray(owned)) return [];
+
+    return owned.map((p: { index?: number }) => p.index).filter((id: number | undefined): id is number => typeof id === 'number');
+  } catch (error) {
+    console.error(`Failed to fetch account punks for ${address}:`, error);
+    return [];
+  }
 }
 
 // Sync collectors from API
@@ -311,12 +346,31 @@ export async function syncCollectors(): Promise<number> {
     VALUES (?, ?, ?, ?, datetime('now'))
   `);
 
+  // Fetch punk IDs for top 30 collectors (to compute ELO)
+  const topHolders = holders.slice(0, 30);
+  const holdersWithPunks = await Promise.all(
+    topHolders.map(async (holder) => {
+      const punkIds = await fetchAccountPunks(holder.address);
+      return { ...holder, punkIds };
+    })
+  );
+
   const sync = db.transaction(() => {
-    for (const holder of holders) {
+    // Insert top holders with punk IDs
+    for (const holder of holdersWithPunks) {
       insert.run(
         holder.address,
         holder.ensName,
         JSON.stringify(holder.punkIds),
+        holder.punkCount
+      );
+    }
+    // Insert remaining holders without punk IDs
+    for (const holder of holders.slice(30)) {
+      insert.run(
+        holder.address,
+        holder.ensName,
+        JSON.stringify([]),
         holder.punkCount
       );
     }

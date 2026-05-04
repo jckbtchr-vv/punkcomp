@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import OpepenImage from "@/components/OpepenImage";
 import Link from "next/link";
 
-type Tab = "opepen" | "sets";
+type Tab = "opepen" | "sets" | "collectors";
 
 interface Opepen {
   id: number;
@@ -20,6 +20,16 @@ interface OpepenSet {
   artist: string;
   imageCount: number;
   avgElo: number;
+  totalWins: number;
+  totalLosses: number;
+}
+
+interface Collector {
+  address: string;
+  opepenCount: number;
+  ratedCount: number;
+  avgElo: number;
+  totalElo: number;
   totalWins: number;
   totalLosses: number;
 }
@@ -49,6 +59,9 @@ export default function OpepenLeaderboardPage() {
   const [tab, setTab] = useState<Tab>("opepen");
   const [opepen, setOpepen] = useState<Opepen[]>([]);
   const [sets, setSets] = useState<OpepenSet[]>([]);
+  const [collectors, setCollectors] = useState<Collector[]>([]);
+  const [collectorsEloMin, setCollectorsEloMin] = useState(1500);
+  const [collectorsEloMax, setCollectorsEloMax] = useState(1500);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalVotes, setTotalVotes] = useState(0);
@@ -84,6 +97,17 @@ export default function OpepenLeaderboardPage() {
     setHasLoaded(true);
   }, []);
 
+  const fetchCollectors = useCallback(async () => {
+    setLoading(true);
+    const res = await fetch("/api/opepen/collectors");
+    const data = await res.json();
+    setCollectors(data.collectors);
+    setCollectorsEloMin(data.eloMin);
+    setCollectorsEloMax(data.eloMax);
+    setLoading(false);
+    setHasLoaded(true);
+  }, []);
+
   useEffect(() => {
     fetchLeaderboard(1);
   }, [fetchLeaderboard]);
@@ -105,6 +129,8 @@ export default function OpepenLeaderboardPage() {
     setTab(t);
     if (t === "sets" && sets.length === 0) {
       fetchSets();
+    } else if (t === "collectors" && collectors.length === 0) {
+      fetchCollectors();
     }
   };
 
@@ -144,6 +170,9 @@ export default function OpepenLeaderboardPage() {
         </button>
         <button onClick={() => switchTab("sets")} className={tabClass("sets")}>
           SETS
+        </button>
+        <button onClick={() => switchTab("collectors")} className={tabClass("collectors")}>
+          COLLECTORS
         </button>
         <Link
           href="/opepen/feed"
@@ -313,6 +342,65 @@ export default function OpepenLeaderboardPage() {
                         {set.totalWins}/{set.totalLosses}
                       </span>
                     </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </>
+        )}
+
+        {tab === "collectors" && (
+          <>
+            {hasLoaded && collectors.length === 0 ? (
+              <div className="text-neutral-500 text-sm text-center mt-12 font-mono-caps">
+                NO COLLECTOR DATA YET. SYNC OPEPEN FIRST!
+              </div>
+            ) : (
+              <>
+                {/* Column headers */}
+                <div className="grid grid-cols-[1.2rem_1fr_3.5rem_3rem_3rem_2.5rem] gap-x-2 items-center font-mono-caps text-[10px] text-neutral-500 mb-2 pl-2 pr-0">
+                  <span>#</span>
+                  <span>COLLECTOR</span>
+                  <span className="text-right">AVG ELO</span>
+                  <span className="text-right">RATED</span>
+                  <span className="text-right">WIN</span>
+                  <span className="text-right">W/L</span>
+                </div>
+
+                <div className="flex flex-col gap-1" style={{ minHeight: 400 }}>
+                  {collectors.map((collector, i) => (
+                    <a
+                      key={collector.address}
+                      href={`https://etherscan.io/address/${collector.address}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="relative grid grid-cols-[1.2rem_1fr_3.5rem_3rem_3rem_2.5rem] gap-x-2 items-center pl-2 pr-0 py-2 rounded-lg overflow-hidden hover:bg-neutral-800/30 transition-colors"
+                    >
+                      <EloBar elo={collector.avgElo} min={collectorsEloMin} max={collectorsEloMax} />
+                      <span className="relative font-mono-caps text-[10px] text-neutral-600">
+                        {i + 1}
+                      </span>
+                      <div className="relative flex flex-col min-w-0">
+                        <span className="font-mono-caps text-[10px] font-bold text-neutral-300 truncate">
+                          {collector.address.slice(0, 6)}...{collector.address.slice(-4)}
+                        </span>
+                        <span className="font-mono-caps text-[9px] text-neutral-600">
+                          {collector.opepenCount} OPEPEN
+                        </span>
+                      </div>
+                      <span className="relative font-mono-caps text-[10px] font-bold text-green-400 text-right">
+                        {Math.round(collector.avgElo)}
+                      </span>
+                      <span className="relative font-mono-caps text-[10px] text-neutral-500 text-right">
+                        {collector.ratedCount}
+                      </span>
+                      <span className="relative font-mono-caps text-[10px] text-neutral-400 text-right">
+                        {winRate(collector.totalWins, collector.totalLosses)}
+                      </span>
+                      <span className="relative font-mono-caps text-[10px] text-neutral-500 text-right">
+                        {collector.totalWins}/{collector.totalLosses}
+                      </span>
+                    </a>
                   ))}
                 </div>
               </>

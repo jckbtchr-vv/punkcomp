@@ -10,6 +10,7 @@ const SYNC_LIMIT = 500; // Sync up to 500 per request to avoid timeout
 
 interface OpepenV1Response {
   token_id: string;
+  owner: string | null;
   set_id: number | null;
   image: {
     uuid: string;
@@ -69,7 +70,8 @@ export async function GET(req: NextRequest) {
       artist = ?,
       image_group = ?,
       edition_size = ?,
-      image_url = ?
+      image_url = ?,
+      owner = ?
     WHERE id = ?
   `);
 
@@ -91,7 +93,7 @@ export async function GET(req: NextRequest) {
         if (!data) {
           errors++;
           // Mark as synced with null set_id = -1 to skip next time
-          update.run(-1, null, null, null, 1, null, id);
+          update.run(-1, null, null, null, 1, null, null, id);
           continue;
         }
 
@@ -128,6 +130,7 @@ export async function GET(req: NextRequest) {
           imageGroup,
           editionSize,
           imageUrl,
+          data.owner || null,
           id
         );
         synced++;

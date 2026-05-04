@@ -172,6 +172,10 @@ function initDb(db: Database.Database) {
   if (!opepenColNames.includes("artist")) {
     db.exec("ALTER TABLE opepen ADD COLUMN artist TEXT");
   }
+  if (!opepenColNames.includes("owner")) {
+    db.exec("ALTER TABLE opepen ADD COLUMN owner TEXT");
+    db.exec("CREATE INDEX IF NOT EXISTS idx_opepen_owner ON opepen(owner)");
+  }
 
   // Seed 16,000 opepen if table is empty
   const opepenCount = db.prepare("SELECT COUNT(*) as c FROM opepen").get() as { c: number };

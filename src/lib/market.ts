@@ -97,28 +97,30 @@ export async function fetchRecentSales(count = 10): Promise<RecentSale[]> {
     // If not an array, return empty
     if (!Array.isArray(sales)) return [];
 
-    return sales.map((sale: {
-      punkIndex?: number;
-      punkId?: number;
-      index?: number;
-      value?: string;
-      price?: string;
-      amount?: string;
-      from?: string;
-      seller?: string;
-      to?: string;
-      buyer?: string;
-      timestamp?: number;
-      blockNumber?: number;
-      block?: number;
-    }) => ({
-      punkId: sale.punkIndex ?? sale.punkId ?? sale.index,
-      price: Number(sale.value || sale.price || sale.amount || 0) / 1e18,
-      from: sale.from || sale.seller || "",
-      to: sale.to || sale.buyer || "",
-      timestamp: sale.timestamp || 0,
-      blockNumber: sale.blockNumber || sale.block || 0,
-    }));
+    return sales
+      .map((sale: {
+        punkIndex?: number;
+        punkId?: number;
+        index?: number;
+        value?: string;
+        price?: string;
+        amount?: string;
+        from?: string;
+        seller?: string;
+        to?: string;
+        buyer?: string;
+        timestamp?: number;
+        blockNumber?: number;
+        block?: number;
+      }) => ({
+        punkId: sale.punkIndex ?? sale.punkId ?? sale.index ?? -1,
+        price: Number(sale.value || sale.price || sale.amount || 0) / 1e18,
+        from: sale.from || sale.seller || "",
+        to: sale.to || sale.buyer || "",
+        timestamp: sale.timestamp || 0,
+        blockNumber: sale.blockNumber || sale.block || 0,
+      }))
+      .filter((sale) => sale.punkId >= 0);
   } catch (error) {
     console.error("Failed to fetch recent sales:", error);
     return [];

@@ -1,130 +1,84 @@
 {
   "sets": [
-    {
-      "id": 1,
-      "name": "8x8",
-      "artist": "Jack Butcher",
-      "description": "The Original Opepen.",
-      "edition_type": "DYNAMIC"
-    },
-    {
-      "id": 2,
-      "name": "Brought to Light",
-      "artist": "SD 2.1",
-      "description": "Commentary on commodification of image making and remix culture.",
-      "edition_type": "PRINT"
-    },
-    {
-      "id": 3,
-      "name": "Full Circle",
-      "artist": "Batz",
-      "description": "Geometric Pepe by artist who inspired original Opepen geometry.",
-      "edition_type": "PRINT"
-    },
-    {
-      "id": 4,
-      "name": "Consensus",
-      "artist": "VV",
-      "description": "Commemorating Checks Elements auction at Christie's May 2023.",
-      "edition_type": "DYNAMIC"
-    },
-    {
-      "id": 5,
-      "name": "VVR",
-      "artist": "Jack Butcher",
-      "description": "Marking the advent of mainstream spatial computing.",
-      "edition_type": "DYNAMIC"
-    },
-    {
-      "id": 6,
-      "name": "PIV",
-      "artist": "PIV",
-      "description": "Six moments in art history on Cryptopunks contract sixth anniversary.",
-      "edition_type": "PRINT"
-    },
-    {
-      "id": 7,
-      "name": "Finite",
-      "artist": "Jack Butcher",
-      "description": "Nod to seven tiers of semiperfect checks grid.",
-      "edition_type": "PRINT"
-    },
-    {
-      "id": 8,
-      "name": "Infinite",
-      "artist": "Jack Butcher",
-      "description": "Invitation to consider the concept of infinity.",
-      "edition_type": "PRINT"
-    },
-    {
-      "id": 9,
-      "name": "Unity",
-      "artist": "jalil",
-      "description": "An organized whole perceived as more than sum of its parts.",
-      "edition_type": "PRINT"
-    },
-    {
-      "id": 10,
-      "name": "1/0",
-      "artist": "VV",
-      "description": "Yes and no in every conceivable variation.",
-      "edition_type": "PRINT"
-    },
-    {
-      "id": 11,
-      "name": "Opepengs",
-      "artist": "PP x VV",
-      "description": "Pudgy Penguins x Opepen collaboration.",
-      "edition_type": "DYNAMIC"
-    },
-    {
-      "id": 12,
-      "name": "Kairos",
-      "artist": "Jack Butcher",
-      "description": "The opportune moment.",
-      "edition_type": "PRINT"
-    },
-    {
-      "id": 13,
-      "name": "EYES WIDE OPEPEN",
-      "artist": "DOY",
-      "description": "Metaphor about clarity, truth, vision and wisdom.",
-      "edition_type": "PRINT"
-    },
-    {
-      "id": 14,
-      "name": "Zopepen",
-      "artist": "ripe",
-      "description": "we are all students of the zorb",
-      "edition_type": "DYNAMIC"
-    },
-    {
-      "id": 15,
-      "name": "Divina Proportione",
-      "artist": "gillesdc",
-      "description": "Study the science of art; study the art of science.",
-      "edition_type": "DYNAMIC"
-    },
-    {
-      "id": 16,
-      "name": "4x4",
-      "artist": "Jack Butcher",
-      "description": "Four by four.",
-      "edition_type": "DYNAMIC"
-    },
-    {
-      "id": 17,
-      "name": "Reduction",
-      "artist": "ONDI",
-      "description": "Of the essence.",
-      "edition_type": "NUMBERED_PRINT"
-    },
-    {
-      "id": 18,
-      "name": "Nopepen",
-      "artist": "VVD",
-      "description": "The token is the art.",
-      "edition_type": "PRINT"
-    }
+    { "id": 1, "name": "8x8", "artist": "Jack Butcher", "edition_type": "DYNAMIC" },
+    { "id": 2, "name": "Brought to Light", "artist": "SD 2.1", "edition_type": "PRINT" },
+    { "id": 3, "name": "Full Circle", "artist": "batz", "edition_type": "PRINT" },
+    { "id": 4, "name": "Consensus", "artist": "Visualize Value", "edition_type": "DYNAMIC" },
+    { "id": 5, "name": "VVR", "artist": "Jack Butcher", "edition_type": "DYNAMIC" },
+    { "id": 6, "name": "PIV", "artist": "PIV", "edition_type": "PRINT" },
+    { "id": 7, "name": "Finite", "artist": "Jack Butcher", "edition_type": "PRINT" },
+    { "id": 8, "name": "Infinite", "artist": "Jack Butcher", "edition_type": "PRINT" },
+    { "id": 9, "name": "Unity", "artist": "jalil", "edition_type": "PRINT" },
+    { "id": 10, "name": "1/0", "artist": "Visualize Value", "edition_type": "PRINT" },
+    { "id": 11, "name": "Opepengs", "artist": "PP x VV", "edition_type": "DYNAMIC" },
+    { "id": 12, "name": "Kairos", "artist": "Jack Butcher", "edition_type": "PRINT" },
+    { "id": 13, "name": "EYES WIDE OPEPEN", "artist": "DOY", "edition_type": "PRINT" },
+    { "id": 14, "name": "Zopepen", "artist": "ripe", "edition_type": "DYNAMIC" },
+    { "id": 15, "name": "Divina Proportione", "artist": "gillesdc", "edition_type": "DYNAMIC" },
+    { "id": 16, "name": "4x4", "artist": "Jack Butcher", "edition_type": "DYNAMIC" },
+    { "id": 17, "name": "Reduction", "artist": "ONDI", "edition_type": "NUMBERED_PRINT" },
+    { "id": 18, "name": "Nopepen", "artist": "vvd", "edition_type": "PRINT" },
+    { "id": 19, "name": "Opepen Checks", "artist": "Jack Butcher", "edition_type": "DYNAMIC" },
+    { "id": 20, "name": "BLKOPEPEN", "artist": "DEZNOYZE", "edition_type": "PRINT" },
+    { "id": 21, "name": "Opepen Punks", "artist": "Visualize Value", "edition_type": "DYNAMIC" },
+    { "id": 22, "name": "Elemental", "artist": "Jack Butcher", "edition_type": "PRINT" },
+    { "id": 23, "name": "Opepen Dreams", "artist": "jhekub", "edition_type": "PRINT" },
+    { "id": 24, "name": "Chromatic", "artist": "alphacentaurikid", "edition_type": "PRINT" },
+    { "id": 25, "name": "Opepen Genesis", "artist": "Snowfro x Jack Butcher", "edition_type": "DYNAMIC" },
+    { "id": 26, "name": "Entropy", "artist": "Jack Butcher", "edition_type": "PRINT" },
+    { "id": 27, "name": "Luminance", "artist": "fvckrender", "edition_type": "PRINT" },
+    { "id": 28, "name": "Refraction", "artist": "Derrick Kempf", "edition_type": "PRINT" },
+    { "id": 29, "name": "Synthesis", "artist": "Jack Butcher", "edition_type": "DYNAMIC" },
+    { "id": 30, "name": "Binary", "artist": "Visualize Value", "edition_type": "PRINT" },
+    { "id": 31, "name": "Spectrum", "artist": "snows", "edition_type": "PRINT" },
+    { "id": 32, "name": "Hyperspace", "artist": "Jack Butcher", "edition_type": "DYNAMIC" },
+    { "id": 33, "name": "Resonance", "artist": "bee", "edition_type": "PRINT" },
+    { "id": 34, "name": "Parallax", "artist": "Jack Butcher", "edition_type": "PRINT" },
+    { "id": 35, "name": "Axiom", "artist": "Visualize Value", "edition_type": "PRINT" },
+    { "id": 36, "name": "Metamorphic", "artist": "Jack Butcher", "edition_type": "DYNAMIC" },
+    { "id": 37, "name": "Continuum", "artist": "Jack Butcher", "edition_type": "PRINT" },
+    { "id": 38, "name": "Paradigm", "artist": "Jack Butcher", "edition_type": "PRINT" },
+    { "id": 39, "name": "Recursion", "artist": "Jack Butcher", "edition_type": "DYNAMIC" },
+    { "id": 40, "name": "Emergence", "artist": "Jack Butcher", "edition_type": "PRINT" },
+    { "id": 41, "name": "Convergence", "artist": "Jack Butcher", "edition_type": "PRINT" },
+    { "id": 42, "name": "Divergence", "artist": "Jack Butcher", "edition_type": "PRINT" },
+    { "id": 43, "name": "Nexus", "artist": "Jack Butcher", "edition_type": "DYNAMIC" },
+    { "id": 44, "name": "Horizon", "artist": "Jack Butcher", "edition_type": "PRINT" },
+    { "id": 45, "name": "Vertex", "artist": "Jack Butcher", "edition_type": "PRINT" },
+    { "id": 46, "name": "Plot-Pepens", "artist": "Zackery_Fincher x schmrypto", "edition_type": "PRINT" },
+    { "id": 47, "name": "Checkmate", "artist": "Jack Butcher", "edition_type": "DYNAMIC" },
+    { "id": 48, "name": "GM, FRENS", "artist": "derage.eth", "edition_type": "PRINT" },
+    { "id": 49, "name": "3.125", "artist": "Jack Butcher", "edition_type": "PRINT" },
+    { "id": 50, "name": "Human Experimentation", "artist": "lifeofc", "edition_type": "PRINT" },
+    { "id": 51, "name": "Opepen Beeings", "artist": "bookofbee", "edition_type": "PRINT" },
+    { "id": 52, "name": "Cropped Punks", "artist": "PIV", "edition_type": "PRINT" },
+    { "id": 53, "name": "shiddy opepen", "artist": "die with the most likes", "edition_type": "PRINT" },
+    { "id": 54, "name": "THE COST OF FUN", "artist": "LikeLewis", "edition_type": "PRINT" },
+    { "id": 55, "name": "OPEPEN NEIGHBORHOOD", "artist": "random_freaks", "edition_type": "PRINT" },
+    { "id": 56, "name": "Cypeperpunk Dystopia", "artist": "Dangiuz", "edition_type": "PRINT" },
+    { "id": 57, "name": "Dupepen", "artist": "kero", "edition_type": "PRINT" },
+    { "id": 58, "name": "Negative, Positive", "artist": "Visualize Value", "edition_type": "PRINT" },
+    { "id": 59, "name": "All for One", "artist": "cexaline", "edition_type": "PRINT" },
+    { "id": 60, "name": "Dimensions", "artist": "Jack Butcher", "edition_type": "DYNAMIC" },
+    { "id": 61, "name": "Send More Mail", "artist": "Vinnie Hager", "edition_type": "PRINT" },
+    { "id": 62, "name": "Alpha", "artist": "SHL0MS", "edition_type": "PRINT" },
+    { "id": 63, "name": "Opebbles", "artist": "Ars0nic", "edition_type": "PRINT" },
+    { "id": 64, "name": "8x8=64", "artist": "Visualize Value", "edition_type": "DYNAMIC" },
+    { "id": 65, "name": "8x8x", "artist": "rotter_daniel", "edition_type": "PRINT" },
+    { "id": 66, "name": "Meta Morphosis", "artist": "LikeLewis", "edition_type": "PRINT" },
+    { "id": 67, "name": "checkpepen", "artist": "Maximill15 x Astro_AI", "edition_type": "PRINT" },
+    { "id": 68, "name": "Portraits Through Time", "artist": "BB88888888888BB", "edition_type": "PRINT" },
+    { "id": 69, "name": "OPEPEN SECRET", "artist": "Visualize Value", "edition_type": "DYNAMIC" },
+    { "id": 70, "name": "SHIFT", "artist": "DOY", "edition_type": "PRINT" },
+    { "id": 71, "name": "Zoopepen", "artist": "Zoopepen", "edition_type": "PRINT" },
+    { "id": 72, "name": "Rare Opepens", "artist": "vvd", "edition_type": "PRINT" },
+    { "id": 73, "name": "ONPEPE", "artist": "ONPEPE", "edition_type": "PRINT" },
+    { "id": 74, "name": "SUPREPEN", "artist": "8thproject", "edition_type": "PRINT" },
+    { "id": 75, "name": "Threshold", "artist": "Rhomanoff", "edition_type": "DYNAMIC" },
+    { "id": 76, "name": "Exit Liquidity", "artist": "vvd", "edition_type": "PRINT" },
+    { "id": 77, "name": "Foundation", "artist": "Jack Butcher", "edition_type": "PRINT" },
+    { "id": 78, "name": "Permutation", "artist": "Jack Butcher", "edition_type": "DYNAMIC" },
+    { "id": 79, "name": "Play", "artist": "Jack Butcher", "edition_type": "PRINT" },
+    { "id": 80, "name": "Infinity Loop", "artist": "Jack Butcher", "edition_type": "DYNAMIC" }
   ]
 }

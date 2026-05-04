@@ -91,7 +91,11 @@ export async function fetchRecentSales(count = 10): Promise<RecentSale[]> {
     if (!res.ok) return [];
     const data = await res.json();
 
-    const sales = data.sales || data.recentSales || data || [];
+    // Handle various API response formats
+    let sales = data.sales || data.recentSales || data;
+
+    // If not an array, return empty
+    if (!Array.isArray(sales)) return [];
 
     return sales.map((sale: {
       punkIndex?: number;
@@ -130,7 +134,10 @@ export async function fetchHolderLeaderboard(): Promise<CollectorData[]> {
     if (!res.ok) return [];
     const data = await res.json();
 
-    const holders = data.holders || data.leaderboard || data || [];
+    let holders = data.holders || data.leaderboard || data;
+
+    // If not an array, return empty
+    if (!Array.isArray(holders)) return [];
 
     return holders.map((holder: {
       address?: string;

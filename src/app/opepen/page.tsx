@@ -71,10 +71,10 @@ async function fetchOpepenMeta(id: number): Promise<OpepenMeta | null> {
     const image = data.image || "";
     const isUnrevealed = !image || name.toLowerCase().includes("unrevealed") || image.includes("unrevealed");
 
-    // Convert IPFS/Arweave URLs to gateway URLs
+    // Convert IPFS/Arweave URLs to gateway URLs (dweb.link is faster than ipfs.io)
     let resolvedImage = image;
     if (resolvedImage.startsWith("ipfs://")) {
-      resolvedImage = resolvedImage.replace("ipfs://", "https://ipfs.io/ipfs/");
+      resolvedImage = resolvedImage.replace("ipfs://", "https://dweb.link/ipfs/");
     } else if (resolvedImage.startsWith("ar://")) {
       resolvedImage = resolvedImage.replace("ar://", "https://arweave.net/");
     }

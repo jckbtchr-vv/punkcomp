@@ -33,18 +33,20 @@ export async function GET(
     return NextResponse.json({ error: "Opepen not found" }, { status: 404 });
   }
 
-  // If we have cached data, return it
-  if (opepen.image_url && opepen.set_id && opepen.set_id > 0) {
+  // If we have cached data with image_group, we can construct the metadata
+  // but NOT the image URL (CDN requires auth)
+  // Return cached: false so client fetches from external API for image
+  if (opepen.set_id && opepen.set_id > 0) {
     return NextResponse.json({
       id: opepen.id,
-      name: `${opepen.set_name || `Set ${opepen.set_id}`}`,
-      image: opepen.image_url,
-      set: opepen.set_id?.toString() || null,
+      name: opepen.set_name || `Set ${opepen.set_id}`,
+      set: opepen.set_name || opepen.set_id?.toString() || null,
       setId: opepen.set_id,
       artist: opepen.artist,
       edition: opepen.edition_size?.toString() || "1",
       revealed: true,
-      cached: true,
+      // Don't include image - let client fetch from external API
+      cached: false,
     });
   }
 

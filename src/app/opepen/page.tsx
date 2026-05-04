@@ -48,6 +48,25 @@ function reportImage(
 
 async function fetchOpepenMeta(id: number): Promise<OpepenMeta | null> {
   try {
+    // First try our local cache (much faster)
+    const cacheRes = await fetch(`/api/opepen/meta/${id}`);
+    if (cacheRes.ok) {
+      const cached = await cacheRes.json();
+      if (cached.cached && cached.image) {
+        return {
+          id: cached.id,
+          name: cached.name,
+          image: cached.image,
+          set: cached.set,
+          setId: cached.setId,
+          artist: cached.artist,
+          edition: cached.edition,
+          revealed: cached.revealed,
+        };
+      }
+    }
+
+    // Fall back to external API
     const res = await fetch(`https://api.opepen.art/${id}/metadata.json`);
     if (!res.ok) return null;
     const data = await res.json();
@@ -66,12 +85,11 @@ async function fetchOpepenMeta(id: number): Promise<OpepenMeta | null> {
       a.trait_type?.toLowerCase() === "artist"
     );
 
-    // Check if revealed: unrevealed opepen typically have no image or a placeholder name
     const name = data.name || "";
     const image = data.image || "";
     const isUnrevealed = !image || name.toLowerCase().includes("unrevealed") || image.includes("unrevealed");
 
-    // Convert IPFS/Arweave URLs to gateway URLs (dweb.link is faster than ipfs.io)
+    // Convert IPFS/Arweave URLs to gateway URLs
     let resolvedImage = image;
     if (resolvedImage.startsWith("ipfs://")) {
       resolvedImage = resolvedImage.replace("ipfs://", "https://dweb.link/ipfs/");
@@ -361,8 +379,8 @@ export default function OpepenVotePage() {
             </button>
           </div>
 
-          {/* Skip */}
-          <div className="mt-8 h-6 flex items-center">
+          {/* Skip + Info */}
+          <div className="mt-8 h-6 flex items-center gap-6">
             <button
               onClick={fetchMatchup}
               disabled={busy}
@@ -370,6 +388,12 @@ export default function OpepenVotePage() {
             >
               skip &rarr;
             </button>
+            <Link
+              href="/opepen/about"
+              className="font-mono-caps text-neutral-700 hover:text-neutral-500 text-[10px] transition-colors"
+            >
+              what is opepen?
+            </Link>
           </div>
 
           {/* Vote count */}

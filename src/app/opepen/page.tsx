@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 
 interface OpepenMeta {
   id: number;
@@ -296,13 +295,11 @@ export default function OpepenVotePage() {
                   <div className="absolute inset-0 bg-neutral-800 animate-pulse" />
                 )}
                 {opepen1 && !loading && (
-                  <Image
+                  <img
                     src={opepen1.image}
                     alt={opepen1.name}
-                    width={192}
-                    height={192}
-                    quality={80}
-                    priority
+                    loading="eager"
+                    decoding="async"
                     className={`w-full h-full object-cover transition-opacity duration-200 ${img1Loaded ? "opacity-100" : "opacity-0"}`}
                     onLoad={() => setImg1Loaded(true)}
                     onError={() => setImg1Loaded(true)}
@@ -347,13 +344,11 @@ export default function OpepenVotePage() {
                   <div className="absolute inset-0 bg-neutral-800 animate-pulse" />
                 )}
                 {opepen2 && !loading && (
-                  <Image
+                  <img
                     src={opepen2.image}
                     alt={opepen2.name}
-                    width={192}
-                    height={192}
-                    quality={80}
-                    priority
+                    loading="eager"
+                    decoding="async"
                     className={`w-full h-full object-cover transition-opacity duration-200 ${img2Loaded ? "opacity-100" : "opacity-0"}`}
                     onLoad={() => setImg2Loaded(true)}
                     onError={() => setImg2Loaded(true)}

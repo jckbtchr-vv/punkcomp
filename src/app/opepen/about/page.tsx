@@ -137,12 +137,12 @@ export default function AboutOpepenPage() {
               OPENSEA
             </a>
             <a
-              href="https://twitter.com/opaborhood"
+              href="https://twitter.com/opepenedition"
               target="_blank"
               rel="noopener noreferrer"
               className="font-mono-caps text-xs text-neutral-400 hover:text-white border border-neutral-800 hover:border-neutral-600 px-4 py-2 rounded-lg transition-colors"
             >
-              @OPEPENHOOD
+              @OPEPENEDITION
             </a>
           </div>
         </div>

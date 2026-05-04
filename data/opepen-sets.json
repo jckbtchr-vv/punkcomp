@@ -1,0 +1,130 @@
+{
+  "sets": [
+    {
+      "id": 1,
+      "name": "8x8",
+      "artist": "Jack Butcher",
+      "description": "The Original Opepen.",
+      "edition_type": "DYNAMIC"
+    },
+    {
+      "id": 2,
+      "name": "Brought to Light",
+      "artist": "SD 2.1",
+      "description": "Commentary on commodification of image making and remix culture.",
+      "edition_type": "PRINT"
+    },
+    {
+      "id": 3,
+      "name": "Full Circle",
+      "artist": "Batz",
+      "description": "Geometric Pepe by artist who inspired original Opepen geometry.",
+      "edition_type": "PRINT"
+    },
+    {
+      "id": 4,
+      "name": "Consensus",
+      "artist": "VV",
+      "description": "Commemorating Checks Elements auction at Christie's May 2023.",
+      "edition_type": "DYNAMIC"
+    },
+    {
+      "id": 5,
+      "name": "VVR",
+      "artist": "Jack Butcher",
+      "description": "Marking the advent of mainstream spatial computing.",
+      "edition_type": "DYNAMIC"
+    },
+    {
+      "id": 6,
+      "name": "PIV",
+      "artist": "PIV",
+      "description": "Six moments in art history on Cryptopunks contract sixth anniversary.",
+      "edition_type": "PRINT"
+    },
+    {
+      "id": 7,
+      "name": "Finite",
+      "artist": "Jack Butcher",
+      "description": "Nod to seven tiers of semiperfect checks grid.",
+      "edition_type": "PRINT"
+    },
+    {
+      "id": 8,
+      "name": "Infinite",
+      "artist": "Jack Butcher",
+      "description": "Invitation to consider the concept of infinity.",
+      "edition_type": "PRINT"
+    },
+    {
+      "id": 9,
+      "name": "Unity",
+      "artist": "jalil",
+      "description": "An organized whole perceived as more than sum of its parts.",
+      "edition_type": "PRINT"
+    },
+    {
+      "id": 10,
+      "name": "1/0",
+      "artist": "VV",
+      "description": "Yes and no in every conceivable variation.",
+      "edition_type": "PRINT"
+    },
+    {
+      "id": 11,
+      "name": "Opepengs",
+      "artist": "PP x VV",
+      "description": "Pudgy Penguins x Opepen collaboration.",
+      "edition_type": "DYNAMIC"
+    },
+    {
+      "id": 12,
+      "name": "Kairos",
+      "artist": "Jack Butcher",
+      "description": "The opportune moment.",
+      "edition_type": "PRINT"
+    },
+    {
+      "id": 13,
+      "name": "EYES WIDE OPEPEN",
+      "artist": "DOY",
+      "description": "Metaphor about clarity, truth, vision and wisdom.",
+      "edition_type": "PRINT"
+    },
+    {
+      "id": 14,
+      "name": "Zopepen",
+      "artist": "ripe",
+      "description": "we are all students of the zorb",
+      "edition_type": "DYNAMIC"
+    },
+    {
+      "id": 15,
+      "name": "Divina Proportione",
+      "artist": "gillesdc",
+      "description": "Study the science of art; study the art of science.",
+      "edition_type": "DYNAMIC"
+    },
+    {
+      "id": 16,
+      "name": "4x4",
+      "artist": "Jack Butcher",
+      "description": "Four by four.",
+      "edition_type": "DYNAMIC"
+    },
+    {
+      "id": 17,
+      "name": "Reduction",
+      "artist": "ONDI",
+      "description": "Of the essence.",
+      "edition_type": "NUMBERED_PRINT"
+    },
+    {
+      "id": 18,
+      "name": "Nopepen",
+      "artist": "VVD",
+      "description": "The token is the art.",
+      "edition_type": "PRINT"
+    }
+  ]
+}

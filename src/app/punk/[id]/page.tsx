@@ -22,6 +22,20 @@ interface PunkData {
   traits: string[];
 }
 
+interface MarketData {
+  owner: string | null;
+  ownerEns: string | null;
+  isForSale: boolean;
+  listingPrice: number | null;
+  hasBid: boolean;
+  bidPrice: number | null;
+}
+
+interface FloorComparison {
+  percent: number;
+  label: string;
+}
+
 interface HistoryEntry {
   id: number;
   won: boolean;
@@ -29,10 +43,18 @@ interface HistoryEntry {
   createdAt: string;
 }
 
+function shortenAddress(addr: string): string {
+  if (!addr) return "";
+  return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+}
+
 export default function PunkDetailPage() {
   const params = useParams();
   const id = parseInt(params.id as string);
   const [punk, setPunk] = useState<PunkData | null>(null);
+  const [market, setMarket] = useState<MarketData | null>(null);
+  const [floor, setFloor] = useState<number | null>(null);
+  const [floorComparison, setFloorComparison] = useState<FloorComparison | null>(null);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -45,6 +67,9 @@ export default function PunkDetailPage() {
     }
     const data = await res.json();
     setPunk(data.punk);
+    setMarket(data.market);
+    setFloor(data.floor);
+    setFloorComparison(data.floorComparison);
     setHistory(data.history);
     setLoading(false);
   }, [id]);
@@ -101,6 +126,21 @@ export default function PunkDetailPage() {
           <h2 className="font-mono-caps text-lg mt-4 text-white">
             #{punk.id.toString().padStart(4, "0")}
           </h2>
+          {/* Market badges */}
+          {(market?.isForSale || market?.hasBid) && (
+            <div className="flex gap-2 mt-2">
+              {market.isForSale && (
+                <span className="font-mono-caps text-[9px] px-2 py-1 rounded bg-green-500/20 text-green-400 border border-green-500/30">
+                  FOR SALE
+                </span>
+              )}
+              {market.hasBid && (
+                <span className="font-mono-caps text-[9px] px-2 py-1 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30">
+                  HAS BID
+                </span>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Stats grid */}
@@ -135,6 +175,52 @@ export default function PunkDetailPage() {
           </div>
         </div>
 
+        {/* Market Data */}
+        {market && (
+          <div className="mb-8">
+            <h3 className="font-mono-caps text-[10px] text-neutral-600 mb-3">MARKET</h3>
+            <div className="grid grid-cols-2 gap-4">
+              {market.owner && (
+                <div>
+                  <div className="font-mono-caps text-[10px] text-neutral-500 mb-1">OWNER</div>
+                  <a
+                    href={`https://etherscan.io/address/${market.owner}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-mono-caps text-xs text-neutral-300 hover:text-white transition-colors"
+                  >
+                    {market.ownerEns || shortenAddress(market.owner)}
+                  </a>
+                </div>
+              )}
+              {floor && (
+                <div>
+                  <div className="font-mono-caps text-[10px] text-neutral-500 mb-1">FLOOR</div>
+                  <span className="font-mono-caps text-xs text-neutral-300">
+                    {floor.toFixed(2)} ETH
+                  </span>
+                </div>
+              )}
+              {market.isForSale && market.listingPrice && (
+                <div>
+                  <div className="font-mono-caps text-[10px] text-neutral-500 mb-1">LISTING</div>
+                  <span className="font-mono-caps text-xs text-green-400">
+                    {market.listingPrice.toFixed(2)} ETH
+                  </span>
+                </div>
+              )}
+              {market.hasBid && market.bidPrice && (
+                <div>
+                  <div className="font-mono-caps text-[10px] text-neutral-500 mb-1">TOP BID</div>
+                  <span className="font-mono-caps text-xs text-blue-400">
+                    {market.bidPrice.toFixed(2)} ETH
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Traits */}
         <div className="mb-8">
           <h3 className="font-mono-caps text-[10px] text-neutral-600 mb-3">TRAITS</h3>
@@ -163,13 +249,22 @@ export default function PunkDetailPage() {
         {punk.lastSaleEth && (
           <div className="mb-8">
             <h3 className="font-mono-caps text-[10px] text-neutral-600 mb-3">LAST SALE</h3>
-            <span className="font-mono-caps text-sm text-white">
-              {punk.lastSaleEth.toFixed(2)} ETH
-            </span>
-            {punk.lastSaleDate && (
-              <span className="font-mono-caps text-[10px] text-neutral-500 ml-2">
-                {punk.lastSaleDate}
+            <div className="flex items-center gap-3">
+              <span className="font-mono-caps text-sm text-white">
+                {punk.lastSaleEth.toFixed(2)} ETH
               </span>
+              {floorComparison && (
+                <span className={`font-mono-caps text-[10px] ${
+                  floorComparison.percent >= 0 ? "text-green-400" : "text-red-400"
+                }`}>
+                  {floorComparison.label}
+                </span>
+              )}
+            </div>
+            {punk.lastSaleDate && (
+              <div className="font-mono-caps text-[10px] text-neutral-500 mt-1">
+                {punk.lastSaleDate}
+              </div>
             )}
           </div>
         )}

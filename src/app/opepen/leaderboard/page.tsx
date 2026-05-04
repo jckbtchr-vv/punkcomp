@@ -4,12 +4,24 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import OpepenImage from "@/components/OpepenImage";
 import Link from "next/link";
 
+type Tab = "opepen" | "sets";
+
 interface Opepen {
   id: number;
   elo: number;
   wins: number;
   losses: number;
   editionSize: number;
+}
+
+interface OpepenSet {
+  setId: number;
+  name: string;
+  artist: string;
+  imageCount: number;
+  avgElo: number;
+  totalWins: number;
+  totalLosses: number;
 }
 
 function EloBar({ elo, min, max }: { elo: number; min: number; max: number }) {
@@ -34,7 +46,9 @@ function winRate(wins: number, losses: number): string {
 }
 
 export default function OpepenLeaderboardPage() {
+  const [tab, setTab] = useState<Tab>("opepen");
   const [opepen, setOpepen] = useState<Opepen[]>([]);
+  const [sets, setSets] = useState<OpepenSet[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalVotes, setTotalVotes] = useState(0);
@@ -61,6 +75,15 @@ export default function OpepenLeaderboardPage() {
     setHasLoaded(true);
   }, []);
 
+  const fetchSets = useCallback(async () => {
+    setLoading(true);
+    const res = await fetch("/api/opepen/sets");
+    const data = await res.json();
+    setSets(data.sets);
+    setLoading(false);
+    setHasLoaded(true);
+  }, []);
+
   useEffect(() => {
     fetchLeaderboard(1);
   }, [fetchLeaderboard]);
@@ -77,6 +100,24 @@ export default function OpepenLeaderboardPage() {
     setSearch("");
     fetchLeaderboard(1, "");
   };
+
+  const switchTab = (t: Tab) => {
+    setTab(t);
+    if (t === "sets" && sets.length === 0) {
+      fetchSets();
+    }
+  };
+
+  const tabClass = (t: Tab) =>
+    `font-mono-caps text-xs px-4 py-2 rounded-lg transition-colors cursor-pointer ${
+      tab === t
+        ? "text-white bg-neutral-800"
+        : "text-neutral-500 hover:text-white"
+    }`;
+
+  // Compute set elo range for bars
+  const setsEloMin = sets.length > 0 ? Math.min(...sets.map((s) => s.avgElo)) : 1500;
+  const setsEloMax = sets.length > 0 ? Math.max(...sets.map((s) => s.avgElo)) : 1500;
 
   return (
     <main className="min-h-screen flex flex-col items-center px-4 py-8">
@@ -98,121 +139,183 @@ export default function OpepenLeaderboardPage() {
         >
           &larr; VOTE
         </Link>
+        <button onClick={() => switchTab("opepen")} className={tabClass("opepen")}>
+          OPEPEN
+        </button>
+        <button onClick={() => switchTab("sets")} className={tabClass("sets")}>
+          SETS
+        </button>
         <Link
           href="/opepen/feed"
           className="font-mono-caps text-xs text-neutral-500 hover:text-white px-4 py-2 rounded-lg transition-colors"
         >
           FEED
         </Link>
-        <Link
-          href="/leaderboard"
-          className="font-mono-caps text-xs text-neutral-500 hover:text-white px-4 py-2 rounded-lg transition-colors"
-        >
-          PUNKS
-        </Link>
       </div>
 
-      {/* Search */}
-      <div className="mb-4 w-full max-w-2xl">
-        <div className="relative">
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => handleSearch(e.target.value)}
-            placeholder="SEARCH OPEPEN # ..."
-            className="font-mono-caps text-xs w-full bg-neutral-900/50 border border-neutral-800 rounded-lg px-4 py-2 text-neutral-300 placeholder-neutral-600 focus:outline-none focus:border-neutral-600 transition-colors"
-          />
-          {search && (
-            <button
-              onClick={clearSearch}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-600 hover:text-neutral-400 text-xs cursor-pointer"
-            >
-              &times;
-            </button>
-          )}
+      {/* Search (opepen tab only) */}
+      {tab === "opepen" && (
+        <div className="mb-4 w-full max-w-2xl">
+          <div className="relative">
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => handleSearch(e.target.value)}
+              placeholder="SEARCH OPEPEN # ..."
+              className="font-mono-caps text-xs w-full bg-neutral-900/50 border border-neutral-800 rounded-lg px-4 py-2 text-neutral-300 placeholder-neutral-600 focus:outline-none focus:border-neutral-600 transition-colors"
+            />
+            {search && (
+              <button
+                onClick={clearSearch}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-600 hover:text-neutral-400 text-xs cursor-pointer"
+              >
+                &times;
+              </button>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Content */}
       <div className={`w-full max-w-2xl transition-opacity duration-150 ${loading ? "opacity-50" : "opacity-100"}`}>
-        {hasLoaded && opepen.length === 0 ? (
-          <div className="text-neutral-500 text-sm text-center mt-12 font-mono-caps">
-            {search ? "OPEPEN NOT FOUND" : "NO VOTES YET. GO VOTE!"}
-          </div>
-        ) : (
+        {tab === "opepen" && (
           <>
-            {/* Column headers */}
-            <div className="grid grid-cols-[1.2rem_1fr_3rem_2.5rem_2.5rem] gap-x-2 items-center font-mono-caps text-[10px] text-neutral-500 mb-2 pl-2 pr-0">
-              <span>#</span>
-              <span>OPEPEN</span>
-              <span className="text-right">ELO</span>
-              <span className="text-right">WIN</span>
-              <span className="text-right">W/L</span>
-            </div>
-
-            <div className="flex flex-col gap-1" style={{ minHeight: 400 }}>
-              {opepen.map((op, i) => {
-                const rank = search ? "—" : (page - 1) * 50 + i + 1;
-                return (
-                  <Link
-                    key={op.id}
-                    href={`/opepen/${op.id}`}
-                    className="relative grid grid-cols-[1.2rem_1fr_3rem_2.5rem_2.5rem] gap-x-2 items-center pl-2 pr-0 py-2 rounded-lg overflow-hidden hover:bg-neutral-800/30 transition-colors"
-                  >
-                    <EloBar elo={op.elo} min={eloMin} max={eloMax} />
-                    <span className="relative font-mono-caps text-[10px] text-neutral-600">
-                      {rank}
-                    </span>
-                    <div className="relative flex items-center gap-3">
-                      <OpepenImage opepenId={op.id} className="w-8 h-8 shrink-0 rounded-full" />
-                      <span className="font-mono-caps text-[10px] font-bold text-neutral-300 w-14 shrink-0">
-                        #{op.id}
-                      </span>
-                      {op.editionSize > 1 && (
-                        <span className="font-mono-caps text-[9px] text-neutral-600">
-                          1/{op.editionSize}
-                        </span>
-                      )}
-                    </div>
-                    <span className="relative font-mono-caps text-[10px] font-bold text-green-400 text-right">
-                      {Math.round(op.elo)}
-                    </span>
-                    <span className="relative font-mono-caps text-[10px] text-neutral-400 text-right">
-                      {winRate(op.wins, op.losses)}
-                    </span>
-                    <span className="relative font-mono-caps text-[10px] text-neutral-500 text-right">
-                      {op.wins}/{op.losses}
-                    </span>
-                  </Link>
-                );
-              })}
-            </div>
-
-            {/* Pagination */}
-            {!search && (
-              <div className="flex items-center justify-center gap-4 mt-6 h-8">
-                {totalPages > 1 && (
-                  <>
-                    <button
-                      onClick={() => fetchLeaderboard(page - 1)}
-                      disabled={page <= 1 || loading}
-                      className="font-mono-caps text-xs text-neutral-500 hover:text-white disabled:opacity-30 disabled:cursor-default cursor-pointer transition-colors"
-                    >
-                      &larr; PREV
-                    </button>
-                    <span className="font-mono-caps text-[10px] text-neutral-600">
-                      {page} / {totalPages}
-                    </span>
-                    <button
-                      onClick={() => fetchLeaderboard(page + 1)}
-                      disabled={page >= totalPages || loading}
-                      className="font-mono-caps text-xs text-neutral-500 hover:text-white disabled:opacity-30 disabled:cursor-default cursor-pointer transition-colors"
-                    >
-                      NEXT &rarr;
-                    </button>
-                  </>
-                )}
+            {hasLoaded && opepen.length === 0 ? (
+              <div className="text-neutral-500 text-sm text-center mt-12 font-mono-caps">
+                {search ? "OPEPEN NOT FOUND" : "NO VOTES YET. GO VOTE!"}
               </div>
+            ) : (
+              <>
+                {/* Column headers */}
+                <div className="grid grid-cols-[1.2rem_1fr_3rem_2.5rem_2.5rem] gap-x-2 items-center font-mono-caps text-[10px] text-neutral-500 mb-2 pl-2 pr-0">
+                  <span>#</span>
+                  <span>OPEPEN</span>
+                  <span className="text-right">ELO</span>
+                  <span className="text-right">WIN</span>
+                  <span className="text-right">W/L</span>
+                </div>
+
+                <div className="flex flex-col gap-1" style={{ minHeight: 400 }}>
+                  {opepen.map((op, i) => {
+                    const rank = search ? "—" : (page - 1) * 50 + i + 1;
+                    return (
+                      <Link
+                        key={op.id}
+                        href={`/opepen/${op.id}`}
+                        className="relative grid grid-cols-[1.2rem_1fr_3rem_2.5rem_2.5rem] gap-x-2 items-center pl-2 pr-0 py-2 rounded-lg overflow-hidden hover:bg-neutral-800/30 transition-colors"
+                      >
+                        <EloBar elo={op.elo} min={eloMin} max={eloMax} />
+                        <span className="relative font-mono-caps text-[10px] text-neutral-600">
+                          {rank}
+                        </span>
+                        <div className="relative flex items-center gap-3">
+                          <OpepenImage opepenId={op.id} className="w-8 h-8 shrink-0 rounded-full" />
+                          <span className="font-mono-caps text-[10px] font-bold text-neutral-300 w-14 shrink-0">
+                            #{op.id}
+                          </span>
+                          {op.editionSize > 1 && (
+                            <span className="font-mono-caps text-[9px] text-neutral-600">
+                              1/{op.editionSize}
+                            </span>
+                          )}
+                        </div>
+                        <span className="relative font-mono-caps text-[10px] font-bold text-green-400 text-right">
+                          {Math.round(op.elo)}
+                        </span>
+                        <span className="relative font-mono-caps text-[10px] text-neutral-400 text-right">
+                          {winRate(op.wins, op.losses)}
+                        </span>
+                        <span className="relative font-mono-caps text-[10px] text-neutral-500 text-right">
+                          {op.wins}/{op.losses}
+                        </span>
+                      </Link>
+                    );
+                  })}
+                </div>
+
+                {/* Pagination */}
+                {!search && (
+                  <div className="flex items-center justify-center gap-4 mt-6 h-8">
+                    {totalPages > 1 && (
+                      <>
+                        <button
+                          onClick={() => fetchLeaderboard(page - 1)}
+                          disabled={page <= 1 || loading}
+                          className="font-mono-caps text-xs text-neutral-500 hover:text-white disabled:opacity-30 disabled:cursor-default cursor-pointer transition-colors"
+                        >
+                          &larr; PREV
+                        </button>
+                        <span className="font-mono-caps text-[10px] text-neutral-600">
+                          {page} / {totalPages}
+                        </span>
+                        <button
+                          onClick={() => fetchLeaderboard(page + 1)}
+                          disabled={page >= totalPages || loading}
+                          className="font-mono-caps text-xs text-neutral-500 hover:text-white disabled:opacity-30 disabled:cursor-default cursor-pointer transition-colors"
+                        >
+                          NEXT &rarr;
+                        </button>
+                      </>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
+          </>
+        )}
+
+        {tab === "sets" && (
+          <>
+            {hasLoaded && sets.length === 0 ? (
+              <div className="text-neutral-500 text-sm text-center mt-12 font-mono-caps">
+                NO SET DATA YET. VOTE MORE TO POPULATE!
+              </div>
+            ) : (
+              <>
+                {/* Column headers */}
+                <div className="grid grid-cols-[1.2rem_1fr_3.5rem_3rem_3rem_2.5rem] gap-x-2 items-center font-mono-caps text-[10px] text-neutral-500 mb-2 pl-2 pr-0">
+                  <span>#</span>
+                  <span>SET</span>
+                  <span className="text-right">AVG ELO</span>
+                  <span className="text-right">IMAGES</span>
+                  <span className="text-right">WIN</span>
+                  <span className="text-right">W/L</span>
+                </div>
+
+                <div className="flex flex-col gap-1" style={{ minHeight: 400 }}>
+                  {sets.map((set, i) => (
+                    <div
+                      key={set.setId}
+                      className="relative grid grid-cols-[1.2rem_1fr_3.5rem_3rem_3rem_2.5rem] gap-x-2 items-center pl-2 pr-0 py-2 rounded-lg overflow-hidden"
+                    >
+                      <EloBar elo={set.avgElo} min={setsEloMin} max={setsEloMax} />
+                      <span className="relative font-mono-caps text-[10px] text-neutral-600">
+                        {i + 1}
+                      </span>
+                      <div className="relative flex flex-col min-w-0">
+                        <span className="font-mono-caps text-[10px] font-bold text-neutral-300 truncate">
+                          {set.name}
+                        </span>
+                        <span className="font-mono-caps text-[9px] text-neutral-600 truncate">
+                          {set.artist}
+                        </span>
+                      </div>
+                      <span className="relative font-mono-caps text-[10px] font-bold text-green-400 text-right">
+                        {Math.round(set.avgElo)}
+                      </span>
+                      <span className="relative font-mono-caps text-[10px] text-neutral-500 text-right">
+                        {set.imageCount}
+                      </span>
+                      <span className="relative font-mono-caps text-[10px] text-neutral-400 text-right">
+                        {winRate(set.totalWins, set.totalLosses)}
+                      </span>
+                      <span className="relative font-mono-caps text-[10px] text-neutral-500 text-right">
+                        {set.totalWins}/{set.totalLosses}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </>
             )}
           </>
         )}

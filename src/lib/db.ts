@@ -77,6 +77,25 @@ function initDb(db: Database.Database) {
       voter_ip TEXT,
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
+
+    CREATE TABLE IF NOT EXISTS market_cache (
+      punk_id INTEGER PRIMARY KEY,
+      owner_address TEXT,
+      owner_ens TEXT,
+      listing_price_eth REAL,
+      bid_price_eth REAL,
+      is_for_sale INTEGER DEFAULT 0,
+      has_bid INTEGER DEFAULT 0,
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS collectors (
+      address TEXT PRIMARY KEY,
+      ens_name TEXT,
+      punk_ids TEXT,
+      punk_count INTEGER DEFAULT 0,
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
   `);
 
   // Add columns if upgrading from older schema
@@ -142,6 +161,16 @@ function initDb(db: Database.Database) {
   }
   if (!opepenColNames.includes("edition_size")) {
     db.exec("ALTER TABLE opepen ADD COLUMN edition_size INTEGER");
+  }
+  if (!opepenColNames.includes("set_id")) {
+    db.exec("ALTER TABLE opepen ADD COLUMN set_id INTEGER");
+    db.exec("CREATE INDEX IF NOT EXISTS idx_opepen_set_id ON opepen(set_id)");
+  }
+  if (!opepenColNames.includes("set_name")) {
+    db.exec("ALTER TABLE opepen ADD COLUMN set_name TEXT");
+  }
+  if (!opepenColNames.includes("artist")) {
+    db.exec("ALTER TABLE opepen ADD COLUMN artist TEXT");
   }
 
   // Seed 16,000 opepen if table is empty

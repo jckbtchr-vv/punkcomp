@@ -1,26 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import OpepenImage from "./OpepenImage";
 
 interface TickerItem {
   text: string;
-  punks?: number[];
-}
-
-function TickerPunk({ id }: { id: number }) {
-  const col = id % 100;
-  const row = Math.floor(id / 100);
-  return (
-    <span
-      className="inline-block w-4 h-4 rounded-full shrink-0 punk-sprite"
-      style={{
-        backgroundColor: "#638596",
-        backgroundSize: "10000% 10000%",
-        backgroundPosition: `${(col / 99) * 100}% ${(row / 99) * 100}%`,
-      }}
-    />
-  );
+  opepen?: number[];
 }
 
 function TickerTrack({ items }: { items: TickerItem[] }) {
@@ -28,8 +13,8 @@ function TickerTrack({ items }: { items: TickerItem[] }) {
     <div className="ticker-track flex whitespace-nowrap items-center shrink-0">
       {items.map((item, i) => (
         <span key={i} className="inline-flex items-center gap-1.5 mx-6 shrink-0">
-          {item.punks?.map((id) => (
-            <TickerPunk key={id} id={id} />
+          {item.opepen?.map((id) => (
+            <OpepenImage key={id} opepenId={id} className="w-4 h-4 rounded-full shrink-0" />
           ))}
           <span className="font-mono-caps text-[10px] text-neutral-500">
             {item.text}
@@ -40,32 +25,26 @@ function TickerTrack({ items }: { items: TickerItem[] }) {
   );
 }
 
-export default function Ticker() {
+export default function OpepenTicker() {
   const [items, setItems] = useState<TickerItem[]>([]);
-  const pathname = usePathname();
-
-  // Don't show punk ticker on opepen pages (opepen has its own ticker)
-  const isOpepenPage = pathname.startsWith("/opepen");
 
   useEffect(() => {
-    if (isOpepenPage) return;
-
-    fetch("/api/ticker")
+    fetch("/api/opepen/ticker")
       .then((r) => r.json())
       .then((d) => setItems(d.items))
       .catch(() => {});
 
     const interval = setInterval(() => {
-      fetch("/api/ticker")
+      fetch("/api/opepen/ticker")
         .then((r) => r.json())
         .then((d) => setItems(d.items))
         .catch(() => {});
     }, 30000);
 
     return () => clearInterval(interval);
-  }, [isOpepenPage]);
+  }, []);
 
-  if (isOpepenPage || items.length === 0) return null;
+  if (items.length === 0) return null;
 
   return (
     <div className="w-full overflow-hidden border-b border-neutral-800/50 bg-neutral-950/80">

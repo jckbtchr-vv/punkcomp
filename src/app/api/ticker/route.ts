@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
+import { getFloorPrice, fetchRecentSales } from "@/lib/market";
 
 export const dynamic = "force-dynamic";
 
@@ -157,6 +158,43 @@ export async function GET() {
   if (types.length > 0) {
     const parts = types.map((t) => `${t.c} ${t.type.toUpperCase()}S`).join(" · ");
     items.push({ text: `RATED: ${parts}` });
+  }
+
+  // Floor price from cryptopunks.app
+  try {
+    const floor = await getFloorPrice();
+    if (floor) {
+      items.unshift({ text: `FLOOR: ${floor.toFixed(2)} ETH` });
+    }
+  } catch {
+    // Ignore floor price errors
+  }
+
+  // Recent sale with ELO rank
+  try {
+    const recentSales = await fetchRecentSales(1);
+    if (recentSales.length > 0) {
+      const sale = recentSales[0];
+      // Get ELO rank for this punk
+      const punkData = db
+        .prepare("SELECT elo FROM punks WHERE id = ?")
+        .get(sale.punkId) as { elo: number } | undefined;
+
+      if (punkData) {
+        const rank = (
+          db
+            .prepare("SELECT COUNT(*) as c FROM punks WHERE wins + losses > 0 AND elo > ?")
+            .get(punkData.elo) as { c: number }
+        ).c + 1;
+
+        items.push({
+          text: `SOLD: #${sale.punkId.toString().padStart(4, "0")} FOR ${sale.price.toFixed(1)} ETH — RANKED #${rank}`,
+          punks: [sale.punkId],
+        });
+      }
+    }
+  } catch {
+    // Ignore sales errors
   }
 
   return NextResponse.json({ items });

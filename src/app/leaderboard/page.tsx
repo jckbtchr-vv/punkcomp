@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import PunkImage from "@/components/PunkImage";
 import Link from "next/link";
 
-type Tab = "punks" | "traits";
+type Tab = "punks" | "traits" | "collectors";
 
 interface Punk {
   id: number;
@@ -21,6 +21,16 @@ interface Trait {
   avg_elo: number;
   total_wins: number;
   total_losses: number;
+}
+
+interface Collector {
+  address: string;
+  ensName: string | null;
+  punkIds: number[];
+  punkCount: number;
+  avgElo: number;
+  totalElo: number;
+  rankedPunkCount: number;
 }
 
 function DislocationBadge({ value }: { value: number }) {
@@ -60,10 +70,15 @@ function winRate(wins: number, losses: number): string {
   return `${Math.round((wins / total) * 100)}%`;
 }
 
+type Filter = "" | "undervalued" | "overvalued";
+
 export default function LeaderboardPage() {
   const [tab, setTab] = useState<Tab>("punks");
   const [punks, setPunks] = useState<Punk[]>([]);
   const [traits, setTraits] = useState<Trait[]>([]);
+  const [collectors, setCollectors] = useState<Collector[]>([]);
+  const [collectorsEloMin, setCollectorsEloMin] = useState(1500);
+  const [collectorsEloMax, setCollectorsEloMax] = useState(1500);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalVotes, setTotalVotes] = useState(0);
@@ -73,13 +88,15 @@ export default function LeaderboardPage() {
   const [loading, setLoading] = useState(true);
   const [hasLoaded, setHasLoaded] = useState(false);
   const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState<Filter>("");
   const searchTimeout = useRef<ReturnType<typeof setTimeout>>(undefined);
   const hasPrices = punks.some((p) => p.last_sale_eth !== null);
 
-  const fetchLeaderboard = useCallback(async (p: number, q = "") => {
+  const fetchLeaderboard = useCallback(async (p: number, q = "", f: Filter = "") => {
     setLoading(true);
     const params = new URLSearchParams({ page: String(p) });
     if (q) params.set("search", q);
+    if (f) params.set("filter", f);
     const res = await fetch(`/api/leaderboard?${params}`);
     const data = await res.json();
     setPunks(data.punks);
@@ -102,6 +119,19 @@ export default function LeaderboardPage() {
     setHasLoaded(true);
   }, []);
 
+  const fetchCollectors = useCallback(async () => {
+    setLoading(true);
+    const res = await fetch("/api/collectors");
+    const data = await res.json();
+    setCollectors(data.collectors);
+    setCollectorsEloMin(data.eloMin);
+    setCollectorsEloMax(data.eloMax);
+    setTotalVotes(data.totalVotes);
+    setTotalVoters(data.totalVoters ?? 0);
+    setLoading(false);
+    setHasLoaded(true);
+  }, []);
+
   useEffect(() => {
     fetchLeaderboard(1);
   }, [fetchLeaderboard]);
@@ -110,19 +140,28 @@ export default function LeaderboardPage() {
     setSearch(value);
     clearTimeout(searchTimeout.current);
     searchTimeout.current = setTimeout(() => {
-      fetchLeaderboard(1, value);
+      fetchLeaderboard(1, value, filter);
     }, 300);
   };
 
   const clearSearch = () => {
     setSearch("");
-    fetchLeaderboard(1, "");
+    fetchLeaderboard(1, "", filter);
+  };
+
+  const handleFilter = (f: Filter) => {
+    setFilter(f);
+    setSearch("");
+    fetchLeaderboard(1, "", f);
   };
 
   const switchTab = (t: Tab) => {
     setTab(t);
     if (t === "traits" && traits.length === 0) {
       fetchTraits();
+    }
+    if (t === "collectors" && collectors.length === 0) {
+      fetchCollectors();
     }
   };
 
@@ -132,6 +171,16 @@ export default function LeaderboardPage() {
         ? "text-white bg-neutral-800"
         : "text-neutral-500 hover:text-white"
     }`;
+
+  const filterClass = (f: Filter) => {
+    const isActive = filter === f;
+    const colorClass = f === "undervalued"
+      ? (isActive ? "text-green-400 border-green-500/50 bg-green-500/10" : "text-neutral-500 border-neutral-700 hover:text-green-400 hover:border-green-500/30")
+      : f === "overvalued"
+        ? (isActive ? "text-red-400 border-red-500/50 bg-red-500/10" : "text-neutral-500 border-neutral-700 hover:text-red-400 hover:border-red-500/30")
+        : (isActive ? "text-white border-neutral-600 bg-neutral-800" : "text-neutral-500 border-neutral-700 hover:text-white hover:border-neutral-600");
+    return `font-mono-caps text-[10px] px-3 py-1.5 rounded-lg border transition-colors cursor-pointer ${colorClass}`;
+  };
 
   // Compute trait elo range for bars
   const traitEloMin = traits.length > 0 ? Math.min(...traits.map((t) => t.avg_elo)) : 1500;
@@ -163,6 +212,9 @@ export default function LeaderboardPage() {
         <button onClick={() => switchTab("traits")} className={tabClass("traits")}>
           TRAITS
         </button>
+        <button onClick={() => switchTab("collectors")} className={tabClass("collectors")}>
+          COLLECTORS
+        </button>
         <Link
           href="/matchups"
           className="font-mono-caps text-xs text-neutral-500 hover:text-white px-4 py-2 rounded-lg transition-colors"
@@ -171,9 +223,9 @@ export default function LeaderboardPage() {
         </Link>
       </div>
 
-      {/* Search (punks tab only) */}
+      {/* Search + Filter (punks tab only) */}
       {tab === "punks" && (
-        <div className="mb-4 w-full max-w-2xl">
+        <div className="mb-4 w-full max-w-2xl space-y-3">
           <div className="relative">
             <input
               type="text"
@@ -191,6 +243,18 @@ export default function LeaderboardPage() {
               </button>
             )}
           </div>
+          {/* Filter buttons */}
+          <div className="flex items-center justify-center gap-2">
+            <button onClick={() => handleFilter("")} className={filterClass("")}>
+              ALL
+            </button>
+            <button onClick={() => handleFilter("undervalued")} className={filterClass("undervalued")}>
+              UNDERVALUED
+            </button>
+            <button onClick={() => handleFilter("overvalued")} className={filterClass("overvalued")}>
+              OVERVALUED
+            </button>
+          </div>
         </div>
       )}
 
@@ -200,7 +264,7 @@ export default function LeaderboardPage() {
           <>
             {hasLoaded && punks.length === 0 ? (
               <div className="text-neutral-500 text-sm text-center mt-12 font-mono-caps">
-                {search ? "PUNK NOT FOUND" : "NO VOTES YET. GO VOTE!"}
+                {search ? "PUNK NOT FOUND" : filter ? `NO ${filter.toUpperCase()} PUNKS FOUND` : "NO VOTES YET. GO VOTE!"}
               </div>
             ) : (
               <>
@@ -272,7 +336,7 @@ export default function LeaderboardPage() {
                     {totalPages > 1 && (
                       <>
                         <button
-                          onClick={() => fetchLeaderboard(page - 1)}
+                          onClick={() => fetchLeaderboard(page - 1, "", filter)}
                           disabled={page <= 1 || loading}
                           className="font-mono-caps text-xs text-neutral-500 hover:text-white disabled:opacity-30 disabled:cursor-default cursor-pointer transition-colors"
                         >
@@ -282,7 +346,7 @@ export default function LeaderboardPage() {
                           {page} / {totalPages}
                         </span>
                         <button
-                          onClick={() => fetchLeaderboard(page + 1)}
+                          onClick={() => fetchLeaderboard(page + 1, "", filter)}
                           disabled={page >= totalPages || loading}
                           className="font-mono-caps text-xs text-neutral-500 hover:text-white disabled:opacity-30 disabled:cursor-default cursor-pointer transition-colors"
                         >
@@ -293,10 +357,11 @@ export default function LeaderboardPage() {
                   </div>
                 )}
 
-                {hasPrices && (
+                {hasPrices && !filter && (
                   <div className="mt-6 text-center font-mono-caps text-[10px] text-neutral-600">
-                    <span className="text-green-400">+DLOC</span> = UNDERVALUED &middot;{" "}
-                    <span className="text-red-400">-DLOC</span> = OVERVALUED
+                    DLOC = ELO RANK VS PRICE RANK &middot;{" "}
+                    <span className="text-green-400">+</span> UNDERVALUED &middot;{" "}
+                    <span className="text-red-400">-</span> OVERVALUED
                   </div>
                 )}
               </>
@@ -349,6 +414,60 @@ export default function LeaderboardPage() {
                       </span>
                     </div>
                   ))}
+                </div>
+              </>
+            )}
+          </>
+        )}
+
+        {tab === "collectors" && (
+          <>
+            {hasLoaded && collectors.length === 0 ? (
+              <div className="text-neutral-500 text-sm text-center mt-12 font-mono-caps">
+                NO COLLECTOR DATA YET
+              </div>
+            ) : (
+              <>
+                {/* Column headers */}
+                <div className="grid grid-cols-[1.2rem_1fr_3.5rem_3rem_3.5rem] gap-x-2 items-center font-mono-caps text-[10px] text-neutral-500 mb-2 pl-2 pr-0">
+                  <span>#</span>
+                  <span>COLLECTOR</span>
+                  <span className="text-right">AVG ELO</span>
+                  <span className="text-right">PUNKS</span>
+                  <span className="text-right">RATED</span>
+                </div>
+
+                <div className="flex flex-col gap-1" style={{ minHeight: 400 }}>
+                  {collectors.map((collector, i) => (
+                    <a
+                      key={collector.address}
+                      href={`https://etherscan.io/address/${collector.address}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="relative grid grid-cols-[1.2rem_1fr_3.5rem_3rem_3.5rem] gap-x-2 items-center pl-2 pr-0 py-2 rounded-lg overflow-hidden hover:bg-neutral-800/30 transition-colors"
+                    >
+                      <EloBar elo={collector.avgElo} min={collectorsEloMin} max={collectorsEloMax} />
+                      <span className="relative font-mono-caps text-[10px] text-neutral-600">
+                        {i + 1}
+                      </span>
+                      <span className="relative font-mono-caps text-[10px] font-bold text-neutral-300 truncate min-w-0">
+                        {collector.ensName || `${collector.address.slice(0, 6)}...${collector.address.slice(-4)}`}
+                      </span>
+                      <span className="relative font-mono-caps text-[10px] font-bold text-green-400 text-right">
+                        {Math.round(collector.avgElo)}
+                      </span>
+                      <span className="relative font-mono-caps text-[10px] text-neutral-500 text-right">
+                        {collector.punkCount}
+                      </span>
+                      <span className="relative font-mono-caps text-[10px] text-neutral-400 text-right">
+                        {collector.rankedPunkCount}
+                      </span>
+                    </a>
+                  ))}
+                </div>
+
+                <div className="mt-6 text-center font-mono-caps text-[10px] text-neutral-600">
+                  AVG ELO = AVERAGE OF ALL OWNED PUNKS&apos; RATINGS
                 </div>
               </>
             )}

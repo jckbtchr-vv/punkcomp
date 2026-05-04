@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# PVP
 
-## Getting Started
+**[pvp.community](https://pvp.community)**
 
-First, run the development server:
+A crowdsourced aesthetic ranking system for NFT collections. Vote on head-to-head matchups to build community-driven leaderboards.
+
+## Collections
+
+- **CryptoPunks** - All 10,000 punks with trait-based aggregations
+- **Opepen** - 16,000 tokens across 18 sets with artist/set leaderboards
+
+## Features
+
+- **1v1 Voting** - Simple head-to-head comparisons
+- **ELO Rankings** - Chess-style rating system tracks aesthetic consensus
+- **Leaderboards** - Individual tokens, traits (punks), and sets/artists (opepen)
+- **Live Ticker** - Real-time stats, top performers, recent upsets
+- **Match History** - Track any token's voting history and rank
+- **API** - Public endpoints for rankings, stats, and individual tokens
+
+## Tech
+
+- Next.js 15 (App Router)
+- SQLite (better-sqlite3) with WAL mode
+- Tailwind CSS
+
+## Development
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## API Endpoints
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### CryptoPunks
+- `GET /api/leaderboard` - Paginated punk rankings
+- `GET /api/traits` - Trait aggregations by avg ELO
+- `GET /api/punk/[id]` - Individual punk stats + history
+- `GET /api/ticker` - Live stats for ticker
 
-## Learn More
+### Opepen
+- `GET /api/opepen/leaderboard` - Paginated opepen rankings
+- `GET /api/opepen/sets` - Set/artist aggregations
+- `GET /api/opepen/[id]` - Individual opepen stats + history
+- `GET /api/opepen/ticker` - Live opepen stats
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Public API (v1)
+- `GET /api/v1/rankings` - Full rankings export
+- `GET /api/v1/stats` - Collection stats
+- `GET /api/v1/punk/[id]` - Punk data
+- `GET /api/v1/traits` - Trait data

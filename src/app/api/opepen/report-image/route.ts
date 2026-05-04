@@ -13,11 +13,15 @@ function normalizeImageUrl(url: string): string {
 
 export async function POST(req: NextRequest) {
   let id: number, url: string, edition: number | undefined;
+  let setId: number | undefined, setName: string | undefined, artist: string | undefined;
   try {
     const body = await req.json();
     id = body.id;
     url = body.url;
     edition = typeof body.edition === "number" ? body.edition : undefined;
+    setId = typeof body.setId === "number" ? body.setId : undefined;
+    setName = typeof body.setName === "string" ? body.setName : undefined;
+    artist = typeof body.artist === "string" ? body.artist : undefined;
   } catch {
     return NextResponse.json({ error: "Invalid body" }, { status: 400 });
   }
@@ -48,6 +52,13 @@ export async function POST(req: NextRequest) {
     db.prepare(
       "UPDATE opepen SET edition_size = ? WHERE image_group = ? AND edition_size IS NULL"
     ).run(edition, group);
+  }
+
+  // Backfill set metadata if provided and missing
+  if (setId && setId > 0) {
+    db.prepare(
+      "UPDATE opepen SET set_id = ?, set_name = ?, artist = ? WHERE id = ? AND set_id IS NULL"
+    ).run(setId, setName || null, artist || null, id);
   }
 
   return NextResponse.json({ ok: true });

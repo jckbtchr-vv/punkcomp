@@ -8,16 +8,37 @@ interface OpepenMeta {
   name: string;
   image: string;
   set: string | null;
+  setId: number | null;
+  artist: string | null;
   edition: string | null;
   revealed: boolean;
 }
 
 const reportedIds = new Set<number>();
-function reportImage(id: number, url: string, edition?: number) {
+function reportImage(
+  id: number,
+  url: string,
+  edition?: number,
+  setId?: number,
+  setName?: string,
+  artist?: string
+) {
   if (reportedIds.has(id) || !url.startsWith("http")) return;
   reportedIds.add(id);
-  const body: { id: number; url: string; edition?: number } = { id, url };
+  const body: {
+    id: number;
+    url: string;
+    edition?: number;
+    setId?: number;
+    setName?: string;
+    artist?: string;
+  } = { id, url };
   if (edition && edition > 0) body.edition = edition;
+  if (setId && setId > 0) {
+    body.setId = setId;
+    if (setName) body.setName = setName;
+    if (artist) body.artist = artist;
+  }
   fetch("/api/opepen/report-image", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -33,10 +54,16 @@ async function fetchOpepenMeta(id: number): Promise<OpepenMeta | null> {
 
     const attrs = data.attributes || [];
     const setAttr = attrs.find((a: { trait_type: string }) =>
-      a.trait_type?.toLowerCase() === "set" || a.trait_type?.toLowerCase() === "release"
+      a.trait_type?.toLowerCase() === "set"
+    );
+    const releaseAttr = attrs.find((a: { trait_type: string }) =>
+      a.trait_type?.toLowerCase() === "release"
     );
     const editionAttr = attrs.find((a: { trait_type: string }) =>
       a.trait_type?.toLowerCase() === "edition size"
+    );
+    const artistAttr = attrs.find((a: { trait_type: string }) =>
+      a.trait_type?.toLowerCase() === "artist"
     );
 
     // Check if revealed: unrevealed opepen typically have no image or a placeholder name
@@ -57,6 +84,8 @@ async function fetchOpepenMeta(id: number): Promise<OpepenMeta | null> {
       name,
       image: resolvedImage,
       set: setAttr?.value?.toString() || null,
+      setId: releaseAttr?.value ? parseInt(releaseAttr.value) : null,
+      artist: artistAttr?.value || null,
       edition: editionAttr?.value || null,
       revealed: !isUnrevealed,
     };
@@ -108,8 +137,26 @@ export default function OpepenVotePage() {
           setReady(true);
           setLoading(false);
           // Report image URLs so server can build thumbnail cache
-          if (meta1.image) reportImage(meta1.id, meta1.image, meta1.edition ? parseInt(meta1.edition) : undefined);
-          if (meta2.image) reportImage(meta2.id, meta2.image, meta2.edition ? parseInt(meta2.edition) : undefined);
+          if (meta1.image) {
+            reportImage(
+              meta1.id,
+              meta1.image,
+              meta1.edition ? parseInt(meta1.edition) : undefined,
+              meta1.setId || undefined,
+              meta1.set || undefined,
+              meta1.artist || undefined
+            );
+          }
+          if (meta2.image) {
+            reportImage(
+              meta2.id,
+              meta2.image,
+              meta2.edition ? parseInt(meta2.edition) : undefined,
+              meta2.setId || undefined,
+              meta2.set || undefined,
+              meta2.artist || undefined
+            );
+          }
           return;
         }
       } catch {

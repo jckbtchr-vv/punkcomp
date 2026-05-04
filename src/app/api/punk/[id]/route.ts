@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
+import { getPunkMarketData, getFloorPrice } from "@/lib/market";
 
 export const dynamic = "force-dynamic";
 
@@ -77,6 +78,22 @@ export async function GET(
     createdAt: v.created_at,
   }));
 
+  // Fetch market data from cryptopunks.app (cached)
+  const [marketData, floorPrice] = await Promise.all([
+    getPunkMarketData(id),
+    getFloorPrice(),
+  ]);
+
+  // Calculate floor comparison
+  let floorComparison: { percent: number; label: string } | null = null;
+  if (punk.last_sale_eth && floorPrice) {
+    const diff = ((punk.last_sale_eth - floorPrice) / floorPrice) * 100;
+    floorComparison = {
+      percent: Math.round(diff),
+      label: diff >= 0 ? `${Math.round(diff)}% above floor` : `${Math.round(Math.abs(diff))}% below floor`,
+    };
+  }
+
   return NextResponse.json({
     punk: {
       id: punk.id,
@@ -97,6 +114,16 @@ export async function GET(
       accessoryCount: punk.accessory_count,
       traits: traits.map((t) => t.trait).filter((t) => t !== punk.type),
     },
+    market: marketData ? {
+      owner: marketData.owner,
+      ownerEns: marketData.ownerEns,
+      isForSale: marketData.isForSale,
+      listingPrice: marketData.listingPrice,
+      hasBid: marketData.hasBid,
+      bidPrice: marketData.bidPrice,
+    } : null,
+    floor: floorPrice,
+    floorComparison,
     history,
   });
 }

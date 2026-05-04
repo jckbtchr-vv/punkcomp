@@ -323,7 +323,7 @@ export default function OpepenVotePage() {
                     </div>
                     {opepen1.set && (
                       <span className="font-mono-caps text-[9px] text-neutral-600">
-                        SET {opepen1.set}
+                        {opepen1.set}
                       </span>
                     )}
                   </>
@@ -370,7 +370,7 @@ export default function OpepenVotePage() {
                     </div>
                     {opepen2.set && (
                       <span className="font-mono-caps text-[9px] text-neutral-600">
-                        SET {opepen2.set}
+                        {opepen2.set}
                       </span>
                     )}
                   </>

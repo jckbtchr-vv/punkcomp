@@ -5,13 +5,15 @@ import { getDb } from "@/lib/db";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  // Check if we need to refresh collector data
-  if (collectorsNeedRefresh()) {
-    try {
-      await syncCollectors();
-    } catch (error) {
-      console.error("Failed to sync collectors:", error);
+  // Don't sync on every request - only if explicitly needed and data is very stale
+  // This prevents startup issues and rate limiting
+  try {
+    if (collectorsNeedRefresh()) {
+      // Run sync in background, don't block the response
+      syncCollectors().catch(err => console.error("Collector sync failed:", err));
     }
+  } catch (error) {
+    console.error("Failed to check collector refresh:", error);
   }
 
   const db = getDb();

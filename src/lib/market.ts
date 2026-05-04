@@ -346,14 +346,20 @@ export async function syncCollectors(): Promise<number> {
     VALUES (?, ?, ?, ?, datetime('now'))
   `);
 
-  // Fetch punk IDs for top 30 collectors (to compute ELO)
-  const topHolders = holders.slice(0, 30);
-  const holdersWithPunks = await Promise.all(
-    topHolders.map(async (holder) => {
+  // Fetch punk IDs for top 10 collectors (to compute ELO)
+  // Limit to 10 to avoid rate limiting and timeouts
+  const topHolders = holders.slice(0, 10);
+  const holdersWithPunks: (CollectorData & { punkIds: number[] })[] = [];
+
+  // Fetch sequentially to avoid rate limiting
+  for (const holder of topHolders) {
+    try {
       const punkIds = await fetchAccountPunks(holder.address);
-      return { ...holder, punkIds };
-    })
-  );
+      holdersWithPunks.push({ ...holder, punkIds });
+    } catch {
+      holdersWithPunks.push({ ...holder, punkIds: [] });
+    }
+  }
 
   const sync = db.transaction(() => {
     // Insert top holders with punk IDs
@@ -366,7 +372,7 @@ export async function syncCollectors(): Promise<number> {
       );
     }
     // Insert remaining holders without punk IDs
-    for (const holder of holders.slice(30)) {
+    for (const holder of holders.slice(10)) {
       insert.run(
         holder.address,
         holder.ensName,

@@ -104,12 +104,16 @@ export default function OpepenVotePage() {
   const [selected, setSelected] = useState<"left" | "right" | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [img1Loaded, setImg1Loaded] = useState(false);
+  const [img2Loaded, setImg2Loaded] = useState(false);
 
   const fetchMatchup = useCallback(async () => {
     setReady(false);
     setSelected(null);
     setLoading(true);
     setError(false);
+    setImg1Loaded(false);
+    setImg2Loaded(false);
 
     // Keep trying until we get two revealed opepen from different sets
     let attempts = 0;
@@ -268,21 +272,23 @@ export default function OpepenVotePage() {
               disabled={busy}
               className={cardClass("left")}
             >
-              <div className="w-[140px] sm:w-[192px] aspect-square rounded-lg overflow-hidden bg-neutral-900">
+              <div className="w-[140px] sm:w-[192px] aspect-square rounded-lg overflow-hidden bg-neutral-900 relative">
+                {(loading || !img1Loaded) && (
+                  <div className="absolute inset-0 bg-neutral-800 animate-pulse" />
+                )}
                 {opepen1 && !loading && (
                   <img
                     src={opepen1.image}
                     alt={opepen1.name}
-                    className="w-full h-full object-cover"
-                    onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                    className={`w-full h-full object-cover transition-opacity duration-200 ${img1Loaded ? "opacity-100" : "opacity-0"}`}
+                    onLoad={() => setImg1Loaded(true)}
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; setImg1Loaded(true); }}
                   />
                 )}
               </div>
-              <div className="flex flex-col items-center gap-0.5">
+              <div className="flex flex-col items-center gap-0.5 h-[32px] justify-center">
                 {loading ? (
-                  <span className="font-mono-caps text-[10px] text-neutral-600">
-                    LOADING...
-                  </span>
+                  <div className="w-16 h-3 bg-neutral-800 rounded animate-pulse" />
                 ) : opepen1 ? (
                   <>
                     <div className="flex items-center gap-1.5">
@@ -313,21 +319,23 @@ export default function OpepenVotePage() {
               disabled={busy}
               className={cardClass("right")}
             >
-              <div className="w-[140px] sm:w-[192px] aspect-square rounded-lg overflow-hidden bg-neutral-900">
+              <div className="w-[140px] sm:w-[192px] aspect-square rounded-lg overflow-hidden bg-neutral-900 relative">
+                {(loading || !img2Loaded) && (
+                  <div className="absolute inset-0 bg-neutral-800 animate-pulse" />
+                )}
                 {opepen2 && !loading && (
                   <img
                     src={opepen2.image}
                     alt={opepen2.name}
-                    className="w-full h-full object-cover"
-                    onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                    className={`w-full h-full object-cover transition-opacity duration-200 ${img2Loaded ? "opacity-100" : "opacity-0"}`}
+                    onLoad={() => setImg2Loaded(true)}
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; setImg2Loaded(true); }}
                   />
                 )}
               </div>
-              <div className="flex flex-col items-center gap-0.5">
+              <div className="flex flex-col items-center gap-0.5 h-[32px] justify-center">
                 {loading ? (
-                  <span className="font-mono-caps text-[10px] text-neutral-600">
-                    LOADING...
-                  </span>
+                  <div className="w-16 h-3 bg-neutral-800 rounded animate-pulse" />
                 ) : opepen2 ? (
                   <>
                     <div className="flex items-center gap-1.5">

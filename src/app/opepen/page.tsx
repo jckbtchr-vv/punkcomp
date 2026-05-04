@@ -89,10 +89,10 @@ async function fetchOpepenMeta(id: number): Promise<OpepenMeta | null> {
     const image = data.image || "";
     const isUnrevealed = !image || name.toLowerCase().includes("unrevealed") || image.includes("unrevealed");
 
-    // Convert IPFS/Arweave URLs to gateway URLs
+    // Convert IPFS/Arweave URLs to gateway URLs (w3s.link is fast + Cloudflare cached)
     let resolvedImage = image;
     if (resolvedImage.startsWith("ipfs://")) {
-      resolvedImage = resolvedImage.replace("ipfs://", "https://dweb.link/ipfs/");
+      resolvedImage = resolvedImage.replace("ipfs://", "https://w3s.link/ipfs/");
     } else if (resolvedImage.startsWith("ar://")) {
       resolvedImage = resolvedImage.replace("ar://", "https://arweave.net/");
     }
@@ -298,6 +298,8 @@ export default function OpepenVotePage() {
                   <img
                     src={opepen1.image}
                     alt={opepen1.name}
+                    loading="eager"
+                    decoding="async"
                     className={`w-full h-full object-cover transition-opacity duration-200 ${img1Loaded ? "opacity-100" : "opacity-0"}`}
                     onLoad={() => setImg1Loaded(true)}
                     onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; setImg1Loaded(true); }}
@@ -345,6 +347,8 @@ export default function OpepenVotePage() {
                   <img
                     src={opepen2.image}
                     alt={opepen2.name}
+                    loading="eager"
+                    decoding="async"
                     className={`w-full h-full object-cover transition-opacity duration-200 ${img2Loaded ? "opacity-100" : "opacity-0"}`}
                     onLoad={() => setImg2Loaded(true)}
                     onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; setImg2Loaded(true); }}

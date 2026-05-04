@@ -372,7 +372,7 @@ export default function OpepenLeaderboardPage() {
                   {collectors.map((collector, i) => (
                     <a
                       key={collector.address}
-                      href={`https://etherscan.io/address/${collector.address}`}
+                      href={`https://opepen.art/${collector.address}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="relative grid grid-cols-[1.2rem_1fr_3.5rem_3rem_3rem_2.5rem] gap-x-2 items-center pl-2 pr-0 py-2 rounded-lg overflow-hidden hover:bg-neutral-800/30 transition-colors"

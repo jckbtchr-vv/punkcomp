@@ -15,21 +15,24 @@ export async function GET() {
   // Only include owners with at least 1 opepen that has been voted on
   const collectors = db.prepare(`
     SELECT
-      owner,
+      o.owner,
+      e.ens_name,
       COUNT(*) as opepen_count,
-      COUNT(CASE WHEN wins + losses > 0 THEN 1 END) as rated_count,
-      ROUND(AVG(CASE WHEN wins + losses > 0 THEN elo END), 1) as avg_elo,
-      SUM(CASE WHEN wins + losses > 0 THEN elo ELSE 0 END) as total_elo,
-      SUM(wins) as total_wins,
-      SUM(losses) as total_losses
-    FROM opepen
-    WHERE owner IS NOT NULL AND owner != ''
-    GROUP BY owner
+      COUNT(CASE WHEN o.wins + o.losses > 0 THEN 1 END) as rated_count,
+      ROUND(AVG(CASE WHEN o.wins + o.losses > 0 THEN o.elo END), 1) as avg_elo,
+      SUM(CASE WHEN o.wins + o.losses > 0 THEN o.elo ELSE 0 END) as total_elo,
+      SUM(o.wins) as total_wins,
+      SUM(o.losses) as total_losses
+    FROM opepen o
+    LEFT JOIN opepen_ens e ON LOWER(o.owner) = LOWER(e.address)
+    WHERE o.owner IS NOT NULL AND o.owner != ''
+    GROUP BY o.owner
     HAVING rated_count > 0
     ORDER BY avg_elo DESC
     LIMIT 100
   `).all() as {
     owner: string;
+    ens_name: string | null;
     opepen_count: number;
     rated_count: number;
     avg_elo: number | null;
@@ -41,6 +44,7 @@ export async function GET() {
   // Format response
   const formattedCollectors = collectors.map((c) => ({
     address: c.owner,
+    ensName: c.ens_name || null,
     opepenCount: c.opepen_count,
     ratedCount: c.rated_count,
     avgElo: c.avg_elo || 1500,

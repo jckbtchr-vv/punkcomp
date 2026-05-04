@@ -26,6 +26,7 @@ interface OpepenSet {
 
 interface Collector {
   address: string;
+  ensName: string | null;
   opepenCount: number;
   ratedCount: number;
   avgElo: number;
@@ -382,7 +383,7 @@ export default function OpepenLeaderboardPage() {
                       </span>
                       <div className="relative flex flex-col min-w-0">
                         <span className="font-mono-caps text-[10px] font-bold text-neutral-300 truncate">
-                          {collector.address.slice(0, 6)}...{collector.address.slice(-4)}
+                          {collector.ensName || `${collector.address.slice(0, 6)}...${collector.address.slice(-4)}`}
                         </span>
                         <span className="font-mono-caps text-[9px] text-neutral-600">
                           {collector.opepenCount} OPEPEN

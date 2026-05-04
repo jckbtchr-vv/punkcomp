@@ -28,16 +28,17 @@ export async function GET(req: NextRequest) {
 
   const db = getDb();
 
-  // Get top collectors by opepen count that don't have ENS cached
+  // Get top collectors by avg ELO (leaderboard order) that don't have ENS cached
   const needResolve = db.prepare(`
-    SELECT DISTINCT o.owner as address
+    SELECT o.owner as address
     FROM opepen o
     LEFT JOIN opepen_ens e ON LOWER(o.owner) = LOWER(e.address)
     WHERE o.owner IS NOT NULL
       AND o.owner != ''
       AND e.address IS NULL
+      AND (o.wins + o.losses) > 0
     GROUP BY o.owner
-    ORDER BY COUNT(*) DESC
+    ORDER BY AVG(o.elo) DESC
     LIMIT ?
   `).all(BATCH_SIZE) as { address: string }[];
 
@@ -64,14 +65,18 @@ export async function GET(req: NextRequest) {
     if (ens) withEns++;
   }
 
-  // Count remaining
+  // Count remaining (only rated collectors)
   const remaining = db.prepare(`
-    SELECT COUNT(DISTINCT o.owner) as c
-    FROM opepen o
-    LEFT JOIN opepen_ens e ON LOWER(o.owner) = LOWER(e.address)
-    WHERE o.owner IS NOT NULL
-      AND o.owner != ''
-      AND e.address IS NULL
+    SELECT COUNT(*) as c FROM (
+      SELECT o.owner
+      FROM opepen o
+      LEFT JOIN opepen_ens e ON LOWER(o.owner) = LOWER(e.address)
+      WHERE o.owner IS NOT NULL
+        AND o.owner != ''
+        AND e.address IS NULL
+        AND (o.wins + o.losses) > 0
+      GROUP BY o.owner
+    )
   `).get() as { c: number };
 
   return NextResponse.json({
